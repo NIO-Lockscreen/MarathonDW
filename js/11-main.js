@@ -42,20 +42,27 @@ function tick(){
   const now=performance.now();
   const dt=Math.min(.05,(now-last)/1000); last=now;
 
+  // Poll gamepad every frame (also handles menu deploy / look / shoot).
+  const pad = (typeof gamepadUpdate==='function') ? gamepadUpdate(dt) : null;
+
   if(state==='play'){
     const fwd=new THREE.Vector3(-Math.sin(player.yaw),0,-Math.cos(player.yaw));
     const rgt=new THREE.Vector3(-fwd.z,0,fwd.x);
-    const wish=new THREE.Vector3();
-    if(key.KeyW)wish.add(fwd); if(key.KeyS)wish.sub(fwd);
-    if(key.KeyD)wish.add(rgt); if(key.KeyA)wish.sub(rgt);
-    const moving = wish.lengthSq()>0;
+    // Combine keyboard (digital ±1) and gamepad (analog) into a move vector.
+    let mf=0, ms=0;                       // forward, strafe
+    if(key.KeyW)mf+=1; if(key.KeyS)mf-=1;
+    if(key.KeyD)ms+=1; if(key.KeyA)ms-=1;
+    if(pad){ mf += -pad.moveZ; ms += pad.moveX; }
+    const wish=new THREE.Vector3().addScaledVector(fwd, mf).addScaledVector(rgt, ms);
+    const mag = Math.hypot(mf, ms);       // == wish length (fwd,rgt orthonormal)
+    const moving = mag>1e-3;
     if(moving && !started){ started=true; t0=performance.now(); }
-    if(moving) wish.normalize();
-    const sprinting = (key.ShiftLeft||key.ShiftRight) && moving;
+    if(mag>1) wish.multiplyScalar(1/mag); // clamp to unit; keep analog below 1
+    const sprinting = ((key.ShiftLeft||key.ShiftRight) || (pad&&pad.sprint)) && moving;
     const sp = sprinting ? player.sprint : player.speed;
     player.vel.x = wish.x*sp;
     player.vel.z = wish.z*sp;
-    if(key.Space && player.onGround){
+    if((key.Space || (pad&&pad.jump)) && player.onGround){
       player.vel.y=JUMP; player.onGround=false;
       if(!started){started=true;t0=performance.now();}
     }

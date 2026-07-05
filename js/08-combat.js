@@ -3,8 +3,9 @@
 const ray = new THREE.Raycaster();
 const cross = document.getElementById('cross');
 const tracers=[];
-addEventListener('mousedown',()=>{
-  if(state!=='play' || document.pointerLockElement!==canvas) return;
+// Fire the blaster down the crosshair. Callers gate on game state / input mode
+// (mouse requires pointer lock; gamepad does not).
+function fireWeapon(){
   beep(190,.06,'sawtooth',.12,-120);
   recoil = 1;
   ray.setFromCamera(new THREE.Vector2(0,0), camera);
@@ -27,6 +28,10 @@ addEventListener('mousedown',()=>{
       cross.classList.add('hit'); setTimeout(()=>cross.classList.remove('hit'),120);
     }
   }
+}
+addEventListener('mousedown',()=>{
+  if(state!=='play' || document.pointerLockElement!==canvas) return;
+  fireWeapon();
 });
 
 let destroyed=0, splitTimes=[], particles=[];

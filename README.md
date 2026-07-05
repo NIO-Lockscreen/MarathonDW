@@ -3,6 +3,8 @@
 A fan-made three.js speedrun trainer for the Orientation quadrant of Outpost.
 Shoot the 5 wall batteries (each run picks 5 of 18 spawn locations), drop the
 barrier, and sprint into the crashed Destroyed Wing to stop the clock.
+Playable with keyboard + mouse or a gamepad (left stick move, right stick look,
+RT shoot, A jump, LT sprint, hold LB for the map, START/A to deploy).
 
 Open `index.html` in a browser (a static server is fine: `python3 -m http.server`).
 
@@ -38,7 +40,8 @@ one global scope (no build step, no modules), so declaration order matters.
 | `js/07-map.js` | TAB minimap overlay |
 | `js/08-combat.js` | Shooting, raycast, switch destruction, particles |
 | `js/09-game.js` | Run state, timer, start / end flow |
-| `js/10-main.js` | Physics, collision, and the animation loop |
+| `js/10-gamepad.js` | Gamepad polling (Standard mapping): move / look / shoot / jump / sprint / map / deploy |
+| `js/11-main.js` | Physics, collision, and the animation loop |
 
 To change the map, edit `js/02-layout.js` (geometry) and `js/03-spawns.js`
 (battery positions). `WING.deckY`, `OR` (Orientation), and `TR` (trench) are the
