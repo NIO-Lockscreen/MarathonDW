@@ -12,14 +12,15 @@
 <div id="hud" style="display:none">
   <div id="timer" class="panel">00:00.00</div>
   <div id="switches" class="panel">
-    BARRIER GRID<br>
-    <span class="lamp" id="l0"></span><span class="lamp" id="l1"></span><span class="lamp" id="l2"></span><span class="lamp" id="l3"></span><span class="lamp" id="l4"></span>
+    BARRIER GRID <span id="modetag"></span><br>
+    <span id="lamps"></span>
     <span id="scount" style="margin-left:8px">0/5</span>
   </div>
   <div id="best" class="panel">BEST<br><span id="bestval">--:--.--</span></div>
   <div id="cross">+</div>
+  <div id="guide"><i></i></div>
   <div id="msg"></div>
-  <div id="map"><div id="maptitle">SPAWN POOL &mdash; ALL 18 KNOWN LOCATIONS</div><canvas id="mapcv" width="420" height="560"></canvas></div>
+  <div id="map"><div id="maptitle">TAC MAP</div><canvas id="mapcv" width="420" height="560"></canvas></div>
   <div id="hint" class="panel">WASD / L-STICK move &middot; SHIFT / LT sprint &middot; SPACE / A jump &middot; CLICK / RT shoot &middot; TAB / LB map &middot; R / START restart</div>
 </div>
 
@@ -27,22 +28,34 @@
   <h1>SWITCH HUNT</h1>
   <h2>DESTROYED WING // OUTPOST // PATCH 1.0.5.2</h2>
   <p>Five wall batteries power the Destroyed Wing barrier. Each run they spawn at <span class="k">5 of 18 known locations</span>: <span class="k">both floors inside Orientation</span>, its rooftop generators, the Destroyed Wing hull that crash-landed on the roof, the garage &amp; truck area, the trench under the Flight&nbsp;Control bridge, the NuCaloric machines, the <span class="k">Cargo Bay</span> containers on the Airfield side, and the Dormitories wall.</p>
-  <p>Shoot all five white boxes (glowing <span style="color:var(--red)">red square</span>), then sprint up the rubble ramp and through the barrier into the Destroyed Wing &mdash; the hull sits <span class="k">above the two-floor Orientation building</span>. Clock stops inside. Hold <span class="k">TAB</span> for the spawn-pool map. Stairs inside the lobby reach the second floor and the roof; the exterior west stair also climbs to the roof.</p>
-  <p><span class="k">WASD</span> move &middot; <span class="k">SHIFT</span> sprint &middot; <span class="k">SPACE</span> jump &middot; <span class="k">CLICK</span> shoot &middot; <span class="k">R</span> new run</p>
-  <p><span class="k">GAMEPAD</span> &mdash; left stick move &middot; right stick look &middot; <span class="k">LT</span> sprint &middot; <span class="k">A</span> jump &middot; <span class="k">RT</span> shoot &middot; hold <span class="k">LB</span> map &middot; <span class="k">START</span>/<span class="k">A</span> deploy</p>
-  <button class="btn" id="startBtn">DEPLOY</button>
+  <p>Shoot every white box (glowing <span style="color:var(--red)">red square</span>), then sprint up the rubble ramp and through the barrier into the Destroyed Wing &mdash; the hull sits <span class="k">above the two-floor Orientation building</span>. Clock stops inside. Hold <span class="k">TAB</span> for the tac map. Stairs inside the lobby reach the second floor; a <span class="k">ladder</span> on the west face climbs to the roof.</p>
+  <p><span class="k">WASD</span> / left stick move &middot; <span class="k">SHIFT</span>/LT sprint &middot; <span class="k">SPACE</span>/A jump &middot; <span class="k">CLICK</span>/RT shoot &middot; <span class="k">TAB</span>/LB map &middot; ladder on the west face climbs to the roof</p>
+  <h2 style="margin:18px 0 8px">CHOOSE A MODE TO DEPLOY</h2>
+  <div class="modes">
+    <button class="mbtn" id="mode1"><b>1 · GUIDED</b><span>Arrow points to nearest &middot; 5 batteries</span></button>
+    <button class="mbtn" id="mode2"><b>2 · RECON</b><span>Live targets on the map &middot; 5</span></button>
+    <button class="mbtn" id="mode3"><b>3 · BLIND</b><span>No help &middot; 5 batteries</span></button>
+    <button class="mbtn" id="mode4"><b>4 · SWARM</b><span>10 batteries at once &middot; map on</span></button>
+  </div>
   <div id="loadnote">loading assets&hellip;</div>
+  <div class="padnote">Gamepad: A GUIDED &middot; X RECON &middot; B BLIND &middot; Y SWARM &middot; START repeats</div>
   <div class="tag">FAN-MADE TRAINER &middot; LAYOUT APPROXIMATED FROM COMMUNITY GUIDES &middot; MODELS: KENNEY.NL (CC0) &middot; NOT AFFILIATED WITH BUNGIE</div>
 </div>
 
 <div id="end" class="screen" style="display:none">
-  <h1>WING BREACHED</h1>
+  <h1 id="endtitle">WING BREACHED</h1>
   <h2>SILENT ENTRY CONFIRMED</h2>
   <div id="endstats"></div>
   <div id="splits"></div>
   <div id="foundlist"></div>
-  <button class="btn" id="againBtn">RUN AGAIN [R]</button>
-  <div class="tag">SPAWNS RE-ROLL EVERY RUN &mdash; LEARN ALL 18</div>
+  <h2 style="margin:18px 0 8px">RUN AGAIN &mdash; PICK A MODE</h2>
+  <div class="modes">
+    <button class="mbtn" id="emode1"><b>1 · GUIDED</b><span>Arrow to nearest &middot; 5</span></button>
+    <button class="mbtn" id="emode2"><b>2 · RECON</b><span>Targets on map &middot; 5</span></button>
+    <button class="mbtn" id="emode3"><b>3 · BLIND</b><span>No help &middot; 5</span></button>
+    <button class="mbtn" id="emode4"><b>4 · SWARM</b><span>10 &middot; map on</span></button>
+  </div>
+  <div class="tag">SPAWNS RE-ROLL EVERY RUN &middot; <span class="k">R</span> repeats the last mode</div>
 </div>
 
 <script src="vendor/three.min.js"></script>

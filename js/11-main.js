@@ -1,6 +1,26 @@
 'use strict';
 // ---------- Physics ----------
-const GRAV=-24, JUMP=8.6, STEP=.55;
+const GRAV=-24, JUMP=8.6, STEP=.55, CLIMB=4.5;
+
+// ---------- Nearest-target HUD pointer (GUIDED mode) ----------
+const guideEl = document.getElementById('guide');
+function updateGuide(){
+  if(!MODES[assistMode].arrow){ guideEl.style.display='none'; return; }
+  let best=null, bd=Infinity;
+  for(const s of switches){
+    if(s.dead) continue;
+    const d = s.group.position.distanceToSquared(player.pos);
+    if(d<bd){ bd=d; best=s; }
+  }
+  if(!best){ guideEl.style.display='none'; return; }
+  guideEl.style.display='block';
+  const to = best.group.position.clone().sub(player.pos);
+  const fwd = new THREE.Vector3(-Math.sin(player.yaw),0,-Math.cos(player.yaw));
+  const rgt = new THREE.Vector3(-fwd.z,0,fwd.x);
+  // angle where 0 = dead ahead, clockwise positive toward the right
+  const a = Math.atan2(to.dot(rgt), to.dot(fwd));
+  guideEl.style.transform = 'rotate('+a+'rad)';
+}
 
 function groundHeightAt(x,z,curY){
   let h = 0;
@@ -60,34 +80,59 @@ function tick(){
     if(mag>1) wish.multiplyScalar(1/mag); // clamp to unit; keep analog below 1
     const sprinting = ((key.ShiftLeft||key.ShiftRight) || (pad&&pad.sprint)) && moving;
     const sp = sprinting ? player.sprint : player.speed;
-    player.vel.x = wish.x*sp;
-    player.vel.z = wish.z*sp;
-    if((key.Space || (pad&&pad.jump)) && player.onGround){
-      player.vel.y=JUMP; player.onGround=false;
-      if(!started){started=true;t0=performance.now();}
+    const jumpHeld = key.Space || (pad&&pad.jump);
+
+    // On a ladder? (checked against last frame's position)
+    const L = ladders.find(l=> player.pos.x>l.x0 && player.pos.x<l.x1 &&
+                                player.pos.z>l.z0 && player.pos.z<l.z1 &&
+                                player.pos.y < l.top && player.pos.y > l.base-0.6);
+
+    if(L){
+      // Climb: forward / jump = up, back = down. Strafe still steps off the side.
+      const cy = ((mf>0.1||jumpHeld)?1:0) - (mf<-0.1?1:0);
+      player.vel.set(rgt.x*ms*player.speed, cy*CLIMB, rgt.z*ms*player.speed);
+      player.pos.x += player.vel.x*dt;
+      player.pos.z += player.vel.z*dt;
+      collide(player.pos);
+      player.pos.y += player.vel.y*dt;
+      if(player.pos.y < L.base){ player.pos.y=L.base; }
+      player.onGround = player.pos.y<=L.base+0.01;
+      if(player.pos.y >= L.top-0.1){        // top reached -> step onto the roof
+        player.pos.set(L.land.x, L.land.y, L.land.z);
+        player.vel.set(0,0,0); player.onGround=true;
+      }
+    } else {
+      player.vel.x = wish.x*sp;
+      player.vel.z = wish.z*sp;
+      if(jumpHeld && player.onGround){
+        player.vel.y=JUMP; player.onGround=false;
+        if(!started){started=true;t0=performance.now();}
+      }
+      player.vel.y += GRAV*dt;
+
+      player.pos.x += player.vel.x*dt;
+      player.pos.z += player.vel.z*dt;
+      collide(player.pos);
+      player.pos.y += player.vel.y*dt;
+
+      const gh = groundHeightAt(player.pos.x, player.pos.z, player.pos.y+0.01);
+      if(player.pos.y<=gh){ player.pos.y=gh; player.vel.y=0; player.onGround=true; }
+      else player.onGround = (player.pos.y-gh) < .02;
     }
-    player.vel.y += GRAV*dt;
-
-    player.pos.x += player.vel.x*dt;
-    player.pos.z += player.vel.z*dt;
-    collide(player.pos);
-    player.pos.y += player.vel.y*dt;
-
-    const gh = groundHeightAt(player.pos.x, player.pos.z, player.pos.y+0.01);
-    if(player.pos.y<=gh){ player.pos.y=gh; player.vel.y=0; player.onGround=true; }
-    else player.onGround = (player.pos.y-gh) < .02;
 
     // Barrier at z=24 blocks entry into the hull (over the Orientation roof)
-    // until all 5 batteries are down. Approach comes from the south (z>24).
-    if(destroyed<5 && Math.abs(player.pos.x)<7.4 && player.pos.y>WING.deckY-1.2 &&
+    // until all batteries are down. Approach comes from the south (z>24).
+    if(destroyed<targetCount && Math.abs(player.pos.x)<7.4 && player.pos.y>WING.deckY-1.2 &&
        player.pos.z<25 && player.pos.z>22){
       player.pos.z=25;
     }
     // Crossing the barrier north into the hull interior = run complete.
-    if(destroyed===5 && player.pos.z<23.5 && player.pos.z>-14 &&
+    if(destroyed===targetCount && player.pos.z<23.5 && player.pos.z>-14 &&
        Math.abs(player.pos.x)<7.4 && player.pos.y>WING.deckY-1.2){
       endRun();
     }
+
+    updateGuide();   // nearest-target HUD pointer (GUIDED mode only)
 
     // head bob + footsteps
     if(moving && player.onGround){

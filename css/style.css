@@ -31,4 +31,18 @@
   #splits .d-neg{color:var(--acid)} #splits .d-pos{color:#f66}
   #foundlist{font-size:12px;color:#8ba;line-height:1.8;margin-top:12px;text-align:left}
   #loadnote{font-size:11px;color:#7a9;margin-top:8px}
-</style>
+  #modetag{color:#9fc;letter-spacing:2px}
+  /* mode-select buttons */
+  .modes{display:grid;grid-template-columns:repeat(2,minmax(210px,1fr));gap:12px;max-width:520px;margin:4px auto 0}
+  .mbtn{pointer-events:auto;cursor:pointer;background:rgba(200,255,0,.08);border:1px solid var(--acid);color:#dff;
+        font-family:inherit;padding:12px 16px;text-align:left;transition:background .12s}
+  .mbtn:hover{background:var(--acid);color:var(--ink)}
+  .mbtn b{display:block;font-size:16px;letter-spacing:2px;color:var(--acid)}
+  .mbtn:hover b{color:var(--ink)}
+  .mbtn span{display:block;font-size:11px;margin-top:3px;opacity:.85}
+  .padnote{font-size:11px;color:#7a9;letter-spacing:1px;margin-top:12px}
+  /* nearest-target pointer (GUIDED mode): rotates around the crosshair */
+  #guide{position:fixed;top:50%;left:50%;transform-origin:0 0;pointer-events:none;display:none}
+  #guide i{position:absolute;transform:translate(-50%,-78px);width:0;height:0;
+           border-left:11px solid transparent;border-right:11px solid transparent;
+           border-bottom:18px solid var(--acid);filter:drop-shadow(0 0 4px var(--acid))}

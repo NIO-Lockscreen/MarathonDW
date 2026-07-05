@@ -29,12 +29,13 @@ const SPAWNS = [
 ];
 
 let switches = [];
-function spawnSwitches(){
+function spawnSwitches(count){
+  const n = Math.min(count||5, SPAWNS.length);
   switches.forEach(s=> scene.remove(s.group));
   switches = [];
   const pool = SPAWNS.map((s,i)=>({...s, idx:i}));
   for(let i=pool.length-1;i>0;i--){ const j=(Math.random()*(i+1))|0; [pool[i],pool[j]]=[pool[j],pool[i]]; }
-  pool.slice(0,5).forEach(def=>{
+  pool.slice(0,n).forEach(def=>{
     const g = new THREE.Group();
     const box = new THREE.Mesh(new THREE.BoxGeometry(1,1,.5),
       new THREE.MeshStandardMaterial({color:0xf2f0e8, roughness:.4}));

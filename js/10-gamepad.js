@@ -36,11 +36,14 @@ function gamepadUpdate(dt){
   const A = i => !!(gp.buttons[i] && gp.buttons[i].pressed);           // level
   const E = i => { const p = A(i), w = PAD.prev[i]; PAD.prev[i] = p; return p && !w; }; // edge
 
-  // On menus / end screen: A or Start starts a run.
+  // On menus / end screen: face buttons pick a mode; A=GUIDED X=RECON B=BLIND
+  // Y=SWARM; START repeats the last mode.
   if(state !== 'play'){
-    const deploy = E(0) || E(9);
-    for(let i=0;i<16;i++){ if(i!==0 && i!==9) PAD.prev[i] = A(i); } // consume stale edges
-    if(deploy){ beep(600,.1); startRun(); }
+    let m = 0;
+    if(E(0)) m=1; else if(E(2)) m=2; else if(E(1)) m=3; else if(E(3)) m=4;
+    else if(E(9)) m=assistMode;
+    for(let i=0;i<16;i++){ PAD.prev[i] = A(i); }  // consume stale edges
+    if(m){ beep(600,.1); startRun(m); }
     return null;
   }
 

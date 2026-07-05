@@ -11,7 +11,9 @@ const player = {
 const key = {};
 addEventListener('keydown',e=>{
   key[e.code]=true;
-  if(e.code==='KeyR' && state!=='menu') startRun();
+  if(e.code==='KeyR' && state!=='menu') startRun(assistMode);   // restart same mode
+  const m = {Digit1:1,Digit2:2,Digit3:3,Digit4:4}[e.code];       // pick / switch mode
+  if(m) startRun(m);
   if(e.code==='Space' || e.code==='Tab') e.preventDefault();
   if(e.code==='Tab') showMap(true);
 });

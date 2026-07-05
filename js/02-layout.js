@@ -7,6 +7,16 @@
      from the south rubble field OVER the Orientation roof.
    Everything solid goes through addBox() so it collides + occludes. */
 
+// Build a climbable ladder: visual rails + rungs (non-colliding) plus a climb
+// volume pushed into `ladders`. `land` is the roof point the climber steps onto.
+function addLadder(cx, cz, base, top, land){
+  addBox(.12, top-base, .12, cx-.55, (base+top)/2, cz, M.uescDark, {noCollide:true});
+  addBox(.12, top-base, .12, cx+.55, (base+top)/2, cz, M.uescDark, {noCollide:true});
+  const n = Math.floor((top-base)/0.45);
+  for(let i=0;i<=n;i++) addBox(1.2,.09,.09, cx, base+i*0.45, cz, M.uescDark, {noCollide:true});
+  ladders.push({ x0:cx-.9, x1:cx+.9, z0:cz-1.1, z1:cz+1.1, base, top:top+.1, land });
+}
+
 // ---- Ground (4 quads leaving a hole for the trench) ----
 {
   const hole = {x0:-32.5, x1:-23.5, z0:-20, z1:20};
@@ -69,8 +79,8 @@ const OR = { x:0, z:-14, w:34, d:24, f2:4.2, roofY:8.4 };
   addBox(26,.6, 6,  4,3.9,-21, M.uescGrey);
 
   // stairwell: ground -> second floor, second floor -> roof
+  // interior stairwell reaches the SECOND FLOOR only; the roof is ladder-access.
   for(let i=0;i<10;i++) addBox(6,.42,.6, -12,      .21+i*.42, -18.3-i*.6, M.uescGrey);
-  for(let i=0;i<10;i++) addBox(6,.42,.6, -12, OR.f2+.21+i*.42, -18.3-i*.6, M.uescGrey);
 
   // second floor walls (south = window band, rest solid)
   addBox(34,1.2,.6, 0,4.8,-2.3, M.uescWhite);
@@ -95,12 +105,10 @@ const OR = { x:0, z:-14, w:34, d:24, f2:4.2, roofY:8.4 };
     scene.add(l);
   });
 
-  // exterior stairs (west face, through the garage alley) up to the roof
-  for(let i=0;i<17;i++){
-    addBox(3,.5,1.6, -18.8, .25+i*.5, -6 - i*1.05, M.uescGrey);
-  }
+  // ROOF ACCESS: a ladder on the west face (replaces the old exterior stairs).
+  addLadder(-17.6, -6, 0, OR.roofY, {x:-14.5, y:OR.roofY, z:-6});
 
-  // roof parapets (north + east; west stays open for the exterior stairs)
+  // roof parapets (north + east; west stays open for the ladder dismount)
   addBox(34,1,.6, 0,8.9,-25.7, M.uescGrey);
   addBox(.6,1,22.8, 16.7,8.9,-14, M.uescGrey);
 
@@ -154,7 +162,7 @@ const WING = { deckY: 12 };
 
 // ---- Barrier + indicator lamps (south entrance of the hull) ----
 let barrier;
-const barrierLamps=[];
+let barrierLamps=[];
 {
   barrier = new THREE.Mesh(new THREE.PlaneGeometry(15, 6),
     new THREE.MeshBasicMaterial({color:0xff2222, transparent:true, opacity:.35, side:THREE.DoubleSide}));
@@ -163,10 +171,16 @@ const barrierLamps=[];
   addBox(1,7,1, -8, WING.deckY+3.5, 24, M.uescDark);
   addBox(1,7,1,  8, WING.deckY+3.5, 24, M.uescDark);
   addBox(17,1,1, 0, WING.deckY+7.5, 24, M.uescDark, {noCollide:true});
-  for(let i=0;i<5;i++){
-    const lm = new THREE.Mesh(new THREE.SphereGeometry(.35,10,10),
+}
+// Rebuild the row of barrier indicator lamps to match the run's target count.
+function buildBarrierLamps(n){
+  barrierLamps.forEach(l=>scene.remove(l));
+  barrierLamps = [];
+  const span = 14, x0 = -span/2;
+  for(let i=0;i<n;i++){
+    const lm = new THREE.Mesh(new THREE.SphereGeometry(.3,10,10),
       new THREE.MeshBasicMaterial({color:0xff2a2a}));
-    lm.position.set(-4+i*2, WING.deckY+8.6, 24);
+    lm.position.set(x0 + (n>1? i*span/(n-1) : span/2), WING.deckY+8.6, 24);
     scene.add(lm); barrierLamps.push(lm);
   }
 }

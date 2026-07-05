@@ -50,12 +50,13 @@ function destroySwitch(sw){
   }
   destroyed++;
   splitTimes.push(elapsed());
-  document.getElementById('l'+(destroyed-1)).classList.add('off');
-  barrierLamps[destroyed-1].material.color.set(0x224400);
-  document.getElementById('scount').textContent = destroyed+'/5';
+  const lamp = document.getElementById('l'+(destroyed-1));
+  if(lamp) lamp.classList.add('off');
+  if(barrierLamps[destroyed-1]) barrierLamps[destroyed-1].material.color.set(0x224400);
+  document.getElementById('scount').textContent = destroyed+'/'+targetCount;
   beep(500+destroyed*120,.12,'square',.18);
-  flash(destroyed<5 ? 'BATTERY '+destroyed+'/5 DOWN' : 'BARRIER OFFLINE - GO GO GO');
-  if(destroyed===5){
+  flash(destroyed<targetCount ? 'BATTERY '+destroyed+'/'+targetCount+' DOWN' : 'BARRIER OFFLINE - GO GO GO');
+  if(destroyed===targetCount){
     barrier.visible = false;
     beep(220,.5,'sawtooth',.2,600);
   }

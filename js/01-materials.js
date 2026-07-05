@@ -70,6 +70,7 @@ const M = {
 // ---------- Colliders / occluders ----------
 const colliders = [];
 const occluders = [];
+const ladders  = [];   // climb volumes: {x0,x1,z0,z1, base, top}
 function addBox(w,h,d, x,y,z, mat, opts={}){
   const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), mat);
   m.position.set(x,y,z);
