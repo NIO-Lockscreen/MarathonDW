@@ -3,9 +3,9 @@
    p = position, n = wall normal the battery faces. Positions sit ~3cm
    proud of their wall so the red panel is visible. 5 are picked per run. */
 const SPAWNS = [
-  // Destroyed Wing (crashed hull)
-  {p:[-6.85, 3, 14],               n:[-1,0,0], label:'Under the wing - west pillar'},
-  {p:[ 6.85, 3, 22],               n:[ 1,0,0], label:'Under the wing - east pillar'},
+  // Destroyed Wing (crashed hull) — mounted on the deck support pillars (z=16)
+  {p:[-6.85, 3, 16],               n:[-1,0,0], label:'Under the wing - west pillar'},
+  {p:[ 6.85, 3, 16],               n:[ 1,0,0], label:'Under the wing - east pillar'},
   {p:[-7.37, WING.deckY+1.6, 4],   n:[ 1,0,0], label:'Wing west wall (on deck)'},
   {p:[ 7.37, WING.deckY+1.6, -6],  n:[-1,0,0], label:'Wing east wall (over Orientation)'},
   {p:[ 7.37, WING.deckY+.9, 27],   n:[-1,0,0], label:'Climbing point - rubble ramp'},
@@ -19,8 +19,8 @@ const SPAWNS = [
   {p:[16.34, OR.f2+1.8, -8],       n:[-1,0,0], label:'Second floor - east wall'},
   {p:[-12, OR.f2+1.8, -25.34],     n:[ 0,0,1], label:'Second floor - stairwell wall'},
   // Outskirts
-  {p:[TR.x-4.44, -1.4, -4],        n:[ 1,0,0], label:'Trench wall under Flight Control bridge (west)'},
-  {p:[TR.x+4.44, -1.4, 4],         n:[-1,0,0], label:'Trench wall under Flight Control bridge (east)'},
+  {p:[-31.7, -1.4, -4],            n:[ 1,0,0], label:'Trench wall under Flight Control bridge (west)'},
+  {p:[-24.3, -1.4, 4],             n:[-1,0,0], label:'Trench wall under Flight Control bridge (east)'},
   {p:[-20.24, 2, -17],             n:[ 1,0,0], label:'Garage wall - Orientation west'},
   {p:[truckPos.x-1.76, 1.9, truckPos.z], n:[-1,0,0], label:'Large truck - lower road'},
   {p:[ 3.4, 1.6, -27.36],          n:[ 0,0,-1], label:'Left of the NuCaloric machines'},
