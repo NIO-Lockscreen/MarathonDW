@@ -24,8 +24,10 @@ function drawMap(){
     if(label){ g.fillStyle='#5a8a5a'; g.font='9px monospace'; g.fillText(label, ax+3, ay+11); }
   }
   g.strokeStyle='#3a5a3a';
-  const [px,py]=w2m(0,72); g.beginPath(); g.arc(px,py, 420*16/100, 0, 7); g.stroke();
+  const [px,py]=w2m(0,PIN.z); g.beginPath(); g.arc(px,py, 420*11/100, 0, 7); g.stroke();
   g.fillStyle='#5a8a5a'; g.font='9px monospace'; g.fillText('PINWHEEL', px-24, py);
+  rect(-22,PIN.z-9,-18,PIN.z+9,'L');   // playable left / right pylons
+  rect( 18,PIN.z-9, 22,PIN.z+9,'R');
   // Orientation is a two-floor building; the wing crash lands OVER its roof
   rect(-17,-26,17,-2,'ORIENTATION 2F');
   rect(-30.5,-28,-20.5,-16,'GARAGE');

@@ -1,8 +1,11 @@
 # SWITCH HUNT // DESTROYED WING
 
 A fan-made three.js speedrun trainer for the Orientation quadrant of Outpost.
-Shoot the wall batteries (each run picks from 18 spawn locations), drop the
-barrier, and sprint into the crashed Destroyed Wing to stop the clock.
+Shoot the wall batteries (each run picks from 40 documented spawn locations),
+drop the barrier, and sprint into the crashed Destroyed Wing to stop the clock.
+Spawn zones follow community switch-hunt guides: inside / outside / on top of
+Orientation, underneath Orientation near the road, inside the Destroyed Wing,
+and the left & right sides of Pinwheel.
 Playable with keyboard + mouse or a gamepad (left stick move, right stick look,
 RT shoot, A jump, LT sprint, hold LB for the map).
 

@@ -31,20 +31,41 @@ function addLadder(cx, cz, base, top, land){
   });
 }
 
-// ---- Pinwheel core backdrop ----
+// ---- Pinwheel core + playable LEFT / RIGHT sides ----
+// The rotating tower is a slimmer backdrop now; the left and right pylon
+// structures around it are walkable so batteries can spawn on both sides.
+const PIN = { z:78 };
 {
+  // central rotating tower (backdrop; only the core collides)
   for(let i=0;i<7;i++){
-    const r = 16 - i*1.2;
-    const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r+1.5, 6, 8), i%2? M.uescGrey : M.uescWhite);
-    m.position.set(0, 3+i*6, 72);
+    const r = 10 - i*0.9;
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r+1.2, 6, 8), i%2? M.uescGrey : M.uescWhite);
+    m.position.set(0, 3+i*6, PIN.z);
     m.rotation.y = i*.35;
     m.castShadow = m.receiveShadow = true;
     scene.add(m);
   }
-  colliders.push(new THREE.Box3(new THREE.Vector3(-18,0,55), new THREE.Vector3(18,45,89)));
+  colliders.push(new THREE.Box3(new THREE.Vector3(-11,0,PIN.z-11), new THREE.Vector3(11,45,PIN.z+11)));
+
+  // approach apron (south of the tower) so the base reads as a plaza
+  const apron = new THREE.Mesh(new THREE.PlaneGeometry(64,30), M.pad);
+  apron.rotation.x=-Math.PI/2; apron.position.set(0,.02,PIN.z-16); apron.receiveShadow=true;
+  scene.add(apron); occluders.push(apron);
+
+  // left (-x) and right (+x) pylon blocks with inner mounting walls + canopies
+  [-1,1].forEach(sx=>{
+    addBox(4,6,18, sx*20, 3, PIN.z, M.uescGrey);                 // pylon block
+    addBox(.6,4,18, sx*17.3, 2.5, PIN.z, M.uescWhite);           // inner wall (mount face)
+    addBox(12,1,18, sx*13, 6.5, PIN.z, M.uescDark, {noCollide:true}); // canopy
+    // a couple of crates at the base for low mounts (axis-aligned so the
+    // battery mounts sit cleanly proud of the faces)
+    addBox(2.4,2.4,2.4, sx*18, 1.2, PIN.z-13, M.contBlu);
+    addBox(2.4,2.4,2.4, sx*15, 1.2, PIN.z-11, M.contOlv);
+  });
+
   for(let i=0;i<3;i++){
     const l = new THREE.PointLight(0xff3020,.8,30);
-    l.position.set(Math.sin(i*2.1)*14, 12+i*12, 72+Math.cos(i*2.1)*14);
+    l.position.set(Math.sin(i*2.1)*8, 12+i*12, PIN.z+Math.cos(i*2.1)*8);
     scene.add(l);
   }
 }
@@ -115,6 +136,8 @@ const OR = { x:0, z:-14, w:34, d:24, f2:4.2, roofY:8.4 };
   // roof generators, north of the crashed wing hull
   addBox(4,2.4,2.4,  9, OR.roofY+1.2, -22, M.genBlack);
   addBox(4,2.4,2.4, -2, OR.roofY+1.2, -24, M.genBlack);
+  // rooftop AC unit (mid roof, a mount point away from the hull)
+  addBox(2.4,1.6,2.4, 6, OR.roofY+.8, -12, M.uescDark);
 
   // crash debris where the wing came down on the roof
   addBox(2.5,1,2.5, -11, OR.roofY+.5, -5, M.rust, {ry:.7});
