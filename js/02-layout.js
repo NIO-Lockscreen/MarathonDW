@@ -103,9 +103,18 @@ const DEPOT= {x0:18, x1:38, z0:2, z1:17};
   addBox(.6,4.2,14, -47,-2.1,-22, M.ctrl);                     // east wall
   addBox(14.6,4.2,.6, -54,-2.1,-29, M.ctrl);                   // north wall (purple 2)
   addBox(14.6,4.2,.6, -54,-2.1,-15, M.ctrl);                   // south wall
-  addBox(7,.4,14, -57.5,-.2,-22, M.pad);                       // ceiling (minus stair hole)
+  // ceiling: minus the east stair hole AND the drop-down hatch by the hangars
+  addBox(7,.4,6, -57.5,-.2,-26, M.pad);
+  addBox(7,.4,3, -57.5,-.2,-16.5, M.pad);
+  addBox(2,.4,5, -60,-.2,-20.5, M.pad);
+  addBox(2.4,.4,5, -55.2,-.2,-20.5, M.pad);
+  addBox(.3,.25,5, -59.15,.12,-20.5, M.hazard);                // hatch rim (drop-down entry)
+  addBox(.3,.25,5, -56.25,.12,-20.5, M.hazard);
+  addBox(2.6,.25,.3, -57.7,.12,-23.15, M.hazard);
+  addBox(2.6,.25,.3, -57.7,.12,-17.85, M.hazard);
   addBox(7,.4,5, -50.5,-.2,-26.5, M.pad);
   addBox(7,.4,4, -50.5,-.2,-17, M.pad);
+  addFlood(-57.7,-1.5,-20.5, .5, 10);
   for(let i=0;i<10;i++) addBox(.62,.42,4.6, -47.9-i*.62, -.21-i*.42, -21.5, M.uescGrey);
   addBox(2.4,2.4,2.4, -58.5,-3,-26.5, M.contBlu);              // stored cargo
   addBox(2.4,1.2,2.4, -58.5,-1.2,-26.5, M.contOlv);
@@ -122,9 +131,19 @@ const DEPOT= {x0:18, x1:38, z0:2, z1:17};
   addBox(.6,3,2.5, -46.5,1.5,-19.25, M.ctrl);
   addBox(8.6,.4,7.6, -50.5,3.2,-21.5, M.uescGrey);
   addBox(8,.16,.16, -50.5,3.45,-18.05, M.acid, {noCollide:true,noShadow:true});
-  // decor huts (the two small buildings on the guide map)
-  addBox(3,2.6,3, -58.5,1.3,-18, M.ctrl);
-  addBox(3.5,2.6,3, -56,1.3,-25.5, M.ctrl);
+  // the two airfield hangars flanking the drop-down hatch (purple zone);
+  // 2m gaps on both sides of the hatch keep the drop approach open
+  addBox(7,4.2,5, -60,2.1,-27.5, M.ctrl);                      // hangar A
+  addBox(.2,3.2,4, -56.35,1.6,-27.5, M.uescGrey);              // roll door (east face)
+  addBox(7,4.2,5, -60,2.1,-13.5, M.ctrl);                      // hangar B
+  addBox(.2,3.2,4, -56.35,1.6,-13.5, M.uescGrey);
+  addBox(7,.18,.18, -60,4.3,-24.97, M.acid, {noCollide:true,noShadow:true});
+  addBox(7,.18,.18, -60,4.3,-11.03, M.acid, {noCollide:true,noShadow:true});
+  // parked dropship on the airfield apron
+  addBox(2.2,1.9,6.5, -59.5,1.15,-7.5, M.uescWhite);
+  addBox(7.5,.25,1.8, -59.5,1.9,-6.6, M.ortn);
+  addBox(.3,1.4,1.2, -59.5,2.6,-10.3, M.uescWhite);
+  addBox(2.4,.2,6.7, -59.5,.1,-7.5, M.uescDark);
 
   // --- Plaza rooms (under the plaza southwest of Orientation) ---
   addBox(20,.4,12, -25,-4.4,5, M.pad);                         // floor
@@ -134,6 +153,11 @@ const DEPOT= {x0:18, x1:38, z0:2, z1:17};
   addBox(20.6,4.2,.6, -25,-2.1,11, M.ctrl);                    // south wall
   addBox(1.3,4.2,1.3, -21.5,-2.1,9, M.uescDark);               // center pillar (green 3) — clear of the stairs
   addBox(1.3,4.2,1.3, -28,-2.1,7.6, M.uescDark);
+  // wall-vent housing on the north wall — green 2 sits inside the frame
+  addBox(2,.22,.7, -28.3,-1.55,-0.5, M.genBlack);
+  addBox(2,.22,.7, -28.3,-3.45,-0.5, M.genBlack);
+  addBox(.22,2.1,.7, -29.3,-2.5,-0.5, M.genBlack);
+  addBox(.22,2.1,.7, -27.3,-2.5,-0.5, M.genBlack);
   // ceiling minus the stair hole (x -22..-15, z 2.5..7.5) and the open hatch (x -30..-28, z 6..8)
   addBox(5,.4,12, -32.5,-.2,5, M.pad);
   addBox(2,.4,7, -29,-.2,2.5, M.pad);
@@ -184,8 +208,15 @@ const DEPOT= {x0:18, x1:38, z0:2, z1:17};
   addBox(42,1.2,.6, -11,4.8,2, M.ctrl);
   addBox(42,1.6,.2, -11,6.2,2, M.glass, {noShadow:true});
   addBox(42,.8,.6, -11,7.4,2, M.ctrl, {noCollide:true});
-  // 2F props: center pillar (blue 5), east rack (blue 8), north rack row (blue 9)
-  addBox(1.2,3.6,1.2, -5,6,-9.3, M.uescDark);
+  // 2F: the locked room in the middle section (blue 5 on its outer wall) + racks
+  addBox(6.4,3.6,.4, -5,6,-12, M.ctrl);
+  addBox(6.4,3.6,.4, -5,6,-7.7, M.ctrl);
+  addBox(.4,3.6,3.9, -8,6,-9.85, M.ctrl);
+  addBox(.4,3.6,3.9, -2,6,-9.85, M.ctrl);
+  addBox(1.3,2.6,.12, -1.75,5.5,-9.85, M.uescDark, {noCollide:true});   // sealed door
+  addBox(.14,.2,1.6, -1.7,4.6,-9.85, M.hazard, {noCollide:true,noShadow:true});
+  addBox(.14,.2,1.6, -1.7,6.3,-9.85, M.hazard, {noCollide:true,noShadow:true});
+  addBox(6.4,.15,.15, -5,7.6,-7.42, M.acid, {noCollide:true,noShadow:true});
   addBox(1,2.4,3, 4.6,5.4,-10.4, M.genBlack);
   addBox(3,2.4,1, -2,5.4,-14.2, M.genBlack);
   // roof slab + parapets (west edge open for the ladder dismount; the south
@@ -195,8 +226,8 @@ const DEPOT= {x0:18, x1:38, z0:2, z1:17};
   addBox(23,1,.6, -20.5,8.9,2, M.uescGrey);
   addBox(17,1,.6, 1.5,8.9,2, M.uescGrey);
   addBox(.6,1,20, 10,8.9,-8, M.uescGrey);
-  addBox(4,2.4,2.4, -2,9.6,-15, M.genBlack);                   // roof generators / AC
-  addBox(2.4,1.6,2.4, 4,9.2,-11, M.uescDark);
+  addBox(4,2.4,2.4, -2,9.6,-15, M.genBlack);                   // roof generator (blue 9)
+  addBox(2.4,1.6,2.4, 4,9.2,-11, M.uescDark);                  // roof AC unit (blue 8)
   addLadder(-32.6, -6, 0, OR.roofY, {x:-29.5, y:OR.roofY, z:-6});
   // ORTN teal cladding on the east end + acid roofline (image 4 look)
   addBox(.35,3.2,10, 10.5,1.9,-11, M.ortn, {noCollide:true});
@@ -398,6 +429,13 @@ function buildBarrierLamps(n){
   addFlood(-12.5,3.6,7, .7, 14);
 }
 
+/* ----  Red key card spawn (the green-zone vantage point)  ---- */
+{
+  addBox(.9,1.1,.9, -30,.55,3, M.uescDark);
+  addBox(.06,.5,.34, -30,1.35,3, M.redGlow, {noCollide:true,noShadow:true});
+  const kl = new THREE.PointLight(0xff2331,.5,8); kl.position.set(-30,1.5,3); scene.add(kl);
+}
+
 /* ----  Southeast yard (green 6 / red 11 containers)  ---- */
 {
   addBox(2.4,2.4,3.6, 9.9,1.2,25.2, M.contRed);                // red 11 on the east face
@@ -417,9 +455,22 @@ const truckPos = {x:13, z:6.5};
   addBox(.6,4.6,15, 38,2.3,9.5, M.ctrl);                       // east wall (red 6 outside)
   addBox(20,.5,15, 28,4.85,9.5, M.uescGrey);                   // flat roof
   addBox(20,.2,.2, 28,5.15,17.12, M.acid, {noCollide:true,noShadow:true});
-  addBox(1,2.2,2.6, 22.2,1.1,12.2, M.genBlack);                // red 8 rack
+  // interior staircase up to the storage loft; red 8 hides underneath it
+  for(let i=0;i<7;i++) addBox(2.4,.36,.62, 19.9, .18+i*.36, 14.3-i*.72, M.uescGrey);
+  addBox(2.8,.3,4.4, 19.9,2.62,7.6, M.uescGrey);
+  addBox(.3,2.5,.3, 19.9,1.25,5.6, M.uescDark);
+  addBox(.25,2.2,4.4, 21.2,1.1,12.2, M.uescDark);
+  // medical section along the south wall (red 7)
+  addBox(2.6,1.9,.9, 25,.95,15.9, M.uescWhite);
+  addBox(2.6,1.9,.9, 31,.95,15.9, M.uescWhite);
+  addBox(2,.15,.9, 28,.75,15.4, M.uescWhite);
+  addBox(.15,.75,.9, 27.2,.38,15.4, M.uescDark);
+  addBox(.15,.75,.9, 28.8,.38,15.4, M.uescDark);
+  addBox(.12,1.8,2, 29.9,.9,14.4, M.ortn);
+  addBox(.8,.8,.12, 26,2.9,16.46, M.ortn, {noCollide:true,noShadow:true});
+  addBox(.5,.14,.1, 26,2.9,16.37, M.uescWhite, {noCollide:true,noShadow:true});
+  addBox(.14,.5,.1, 26,2.9,16.37, M.uescWhite, {noCollide:true,noShadow:true});
   addBox(1,2.2,6, 34,1.1,10, M.genBlack);
-  addBox(2.6,1.2,1.4, 30,.6,6, M.uescDark);
   addFlood(28,3.9,9, .7, 20);
   addBox(2.2,1.2,2.2, 14.9,.6,15.4, M.contOlv);                // crate stair -> roof access
   addBox(2.4,2.4,2.4, 15.6,1.2,13.4, M.contOlv);               // (1.2 -> 2.4 -> 3.8 -> wall 4.6 -> roof)

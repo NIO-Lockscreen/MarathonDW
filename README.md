@@ -47,14 +47,36 @@ north-up, in their set colors.
 ## Button placement guide (39 spawns, 4 sets, 4 heights)
 
 Heights: **B1** below ground · **L1** ground level · **2F** second floor /
-elevated · **TOP** up on the Destroyed Wing.
+elevated · **TOP** rooftops & up on the Destroyed Wing.
+
+The four color sets are the guide's four pathing zones (the video frames them
+as an efficient route, and notes the in-game map is only approximate for
+pinpointing [04:32] — treat the dots as ±a few meters):
+
+- **PURPLE — hangar / aircraft drop-down** [07:39]: the below-ground room by
+  the two airfield hangars (buttons on its interior walls, drop in through the
+  hatch by the parked dropship or take the stair hut), plus the garage
+  exterior on the north road and the tip.
+- **GREEN — red-key-card vantage** [03:40]: dense around Orientation's faces —
+  from the red key card spawn on the plaza you can eyeball several at once —
+  plus the wall vent in the plaza B1 rooms [06:32] and the underside of the
+  wing's south walkway span [06:21].
+- **RED — small-building walls & interiors** [14:11]: the sealed hut, the
+  depot (medical section on the south wall [16:40], one hidden under the
+  interior staircase [15:52]) and the far-east blocks.
+- **BLUE — the middle, ladders & roof** [18:26]: Orientation's stairwell
+  floors, the locked room in the middle section [18:40], the roof (AC unit +
+  generator) [19:58], and the Destroyed Wing top.
+
+Runs deploy on either side of Orientation — the buttons sit around the player
+spawn areas on both sides [05:51].
 
 ### PURPLE set (8)
 
 | # | Level | Where |
 |---|-------|-------|
-| 1 | B1 | West rooms — west wall |
-| 2 | B1 | West rooms — north wall |
+| 1 | B1 | Hangar drop-down room — west wall |
+| 2 | B1 | Hangar drop-down room — north wall |
 | 3 | 2F | On top of the black container stack NW of Orientation (shoot it from the teal ORTN container) |
 | 4 | L1 | ORTN garage on the north road — road-side (west) wall |
 | 5 | L1 | ORTN garage — north corner |
@@ -70,11 +92,11 @@ elevated · **TOP** up on the Destroyed Wing.
 | 2 | L1 | Orientation ground floor — west pillar, east face |
 | 3 | L1 | Orientation ground floor — console by the west rooms |
 | 4 | L1 | Orientation ground floor — inside the south wall |
-| 5 | 2F | Orientation second floor — center pillar |
+| 5 | 2F | Orientation second floor — locked-room wall, middle section |
 | 6 | L1 | Orientation ground floor — southeast corner, inside |
 | 7 | 2F | Orientation second floor — sill under the south windows |
-| 8 | 2F | Orientation second floor — east server rack |
-| 9 | 2F | Orientation second floor — north rack row |
+| 8 | TOP | Orientation roof — AC unit |
+| 9 | TOP | Orientation roof — generator facing the wing |
 | 10 | TOP | Destroyed Wing — east hull wall, upper level, outside |
 | 11 | TOP | Destroyed Wing — top deck, blue hull chunk |
 | 12 | TOP | Destroyed Wing — top deck, acid wing chunk |
@@ -84,13 +106,13 @@ elevated · **TOP** up on the Destroyed Wing.
 | # | Level | Where |
 |---|-------|-------|
 | 1 | L1 | Orientation — west wall, outside |
-| 2 | B1 | Plaza rooms — north wall |
+| 2 | B1 | Plaza rooms — inside the wall vent |
 | 3 | B1 | Plaza rooms — center pillar |
 | 4 | L1 | South plaza — NuCaloric kiosk |
 | 5 | L1 | Destroyed Wing — north wall by the east corner |
 | 6 | L1 | Southeast yard — blue crate, west face |
 | 7 | TOP | Destroyed Wing — west hull wall, upper level, outside |
-| 8 | L1 | Destroyed Wing — hanging underneath the south overhang (shoot it from the yard) |
+| 8 | L1 | Destroyed Wing — underside of the south walkway span (shoot it from the yard) |
 
 ### RED set (11)
 
@@ -102,8 +124,8 @@ elevated · **TOP** up on the Destroyed Wing.
 | 4 | L1 | Far east — north block, sea side |
 | 5 | L1 | Depot — north wall, outside |
 | 6 | L1 | Depot — east wall, outside |
-| 7 | L1 | Depot — inside, south wall |
-| 8 | L1 | Depot — inside, west rack |
+| 7 | L1 | Depot — medical section, south wall |
+| 8 | L1 | Depot — under the interior staircase |
 | 9 | L1 | Depot — outside the west door |
 | 10 | L1 | Sealed hut NE of Orientation — west face |
 | 11 | L1 | Southeast yard — red container, east face |

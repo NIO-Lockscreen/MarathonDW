@@ -55,9 +55,11 @@ function startRun(mode){
   document.getElementById('guide').style.display = M.arrow ? 'block':'none';
   barrier.visible=true; barrier2.visible=true;
 
-  // deploy on the south plaza between Orientation and the Destroyed Wing
-  player.pos.set(-6,0,7); player.vel.set(0,0,0);
-  player.yaw=Math.PI; player.pitch=0;
+  // deploy on one of the drop zones flanking Orientation — the video notes the
+  // buttons sit around the player spawn areas on both sides of the building
+  const D = [{x:-6,z:7,yaw:Math.PI}, {x:-20,z:-22,yaw:-2.4}][(Math.random()*2)|0];
+  player.pos.set(D.x,0,D.z); player.vel.set(0,0,0);
+  player.yaw=D.yaw; player.pitch=0;
   particles.forEach(p=>scene.remove(p)); particles=[];
   flash((currentSetName? currentSetName+' SET — ' : M.name+' — ')+'FIND '+targetCount+' BUTTONS');
   if(canvas.requestPointerLock) canvas.requestPointerLock();
