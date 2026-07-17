@@ -122,12 +122,16 @@ function tick(){
       else player.onGround = (player.pos.y-gh) < .02;
     }
 
-    // Barrier at the top of the wing's deck stairs blocks the last climb until
-    // every button is down. Approach climbs north->south up the second stair.
-    const gp = player.pos, GT = WING.gate;
-    if(destroyed<targetCount && gp.y>GT.y && gp.x>GT.x0 && gp.x<GT.x1 &&
-       gp.z>GT.z-1.2 && gp.z<GT.z+.6){
-      gp.z = GT.z-1.2;
+    // Barrier gates (deck-stair top + the walkway door) block the last few
+    // meters until every button is down. Bands are deeper than one frame of
+    // sprint movement, so they can't be jumped across.
+    const gp = player.pos;
+    if(destroyed<targetCount){
+      for(const GT of WING.gates){
+        if(gp.y>GT.y && gp.x>GT.x0 && gp.x<GT.x1 && gp.z>GT.z0 && gp.z<GT.z1){
+          gp.z = GT.push;
+        }
+      }
     }
     // Setting foot on the wing's top deck (inside the wreck) = run complete.
     if(destroyed===targetCount && gp.y>WING.finishY &&
@@ -173,7 +177,7 @@ function tick(){
     s.glow.intensity = 1+pulse*1.2;
     s.sq.material.color.setRGB(1, .1+pulse*.15, .1);
   }});
-  if(barrier.visible) barrier.material.opacity = .28+.12*Math.sin(now*.004);
+  if(barrier.visible) barrier.material.opacity = .28+.12*Math.sin(now*.004); // barrier2 shares the material
 
   // drones patrol (orbits centered off the coast, over the sea)
   drones.forEach(d=>{

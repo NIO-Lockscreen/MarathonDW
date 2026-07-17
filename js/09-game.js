@@ -53,7 +53,7 @@ function startRun(mode){
   document.getElementById('bestval').textContent = bestTime!=null ? fmt(bestTime) : '--:--.--';
   document.getElementById('modetag').textContent = M.name + (currentSetName? ' · '+currentSetName : '');
   document.getElementById('guide').style.display = M.arrow ? 'block':'none';
-  barrier.visible=true;
+  barrier.visible=true; barrier2.visible=true;
 
   // deploy on the south plaza between Orientation and the Destroyed Wing
   player.pos.set(-6,0,7); player.vel.set(0,0,0);

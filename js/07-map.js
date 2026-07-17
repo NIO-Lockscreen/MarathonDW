@@ -85,11 +85,12 @@ function drawMap(){
   // Destroyed Wing — blue-highlighted like the guide; acid dash = top deck
   rect(WING.x0,WING.z0,WING.x1,WING.z1, 'rgba(70,110,205,.72)', '#7fa6ff', 'DESTROYED WING');
   rect(-28,20,8,32, null, '#c8ff00', null, true);
-  { // barrier gate marker
-    const [ax,ay]=w2m(WING.gate.x0, WING.gate.z), [bx]=w2m(WING.gate.x1, WING.gate.z);
+  rect(-8.9,2,-7.1,19.5, 'rgba(120,150,210,.85)', null);  // roof walkway to the north door
+  WING.gates.forEach(GT=>{ // barrier gate markers
+    const [ax,ay]=w2m(GT.x0, (GT.z0+GT.z1)/2), [bx]=w2m(GT.x1, (GT.z0+GT.z1)/2);
     g.strokeStyle='#ff5a5a'; g.lineWidth=2;
     g.beginPath(); g.moveTo(ax,ay); g.lineTo(bx,ay); g.stroke();
-  }
+  });
 
   // all 39 documented spawns — numbered colored dots (the placement guide)
   const t = performance.now();

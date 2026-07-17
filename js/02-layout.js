@@ -38,7 +38,10 @@ function addFlood(x,y,z, i=.85, d=22, col=0xcfe2ff){
 // ---- Shared anchors ----
 const OR   = { x0:-32, x1:10, z0:-18, z1:2, f2:4.2, roofY:8.4 };     // Orientation
 const WING = { x0:-28, x1:8, z0:12, z1:34, mezzY:4.2, deckY:8.4,     // Destroyed Wing
-  gate:  {x0:-28.6, x1:-23.2, z:26.6, y:7},        // barrier at the top of the deck stairs
+  // barrier gates (movement clamps while buttons remain): the top of the deck
+  // stairs, and the north door where the roof walkway lands
+  gates:[ {x0:-28.6, x1:-23.2, z0:25.4, z1:27.2, push:25.4, y:7},
+          {x0:-20.5, x1: -3.5, z0:18.4, z1:20,   push:18.4, y:7} ],
   finishY: 7.2,                                    // top-deck interior = clock stop, but only
   finish:[ {x0:-28.5, x1:-23.5, z0:27.2, z1:34},   // PAST the gate line (west strip)…
            {x0:-23.5, x1:7,     z0:20,   z1:34} ]};// …or on the main deck
@@ -185,10 +188,12 @@ const DEPOT= {x0:18, x1:38, z0:2, z1:17};
   addBox(1.2,3.6,1.2, -5,6,-9.3, M.uescDark);
   addBox(1,2.4,3, 4.6,5.4,-10.4, M.genBlack);
   addBox(3,2.4,1, -2,5.4,-14.2, M.genBlack);
-  // roof slab + parapets (west edge open for the ladder dismount)
+  // roof slab + parapets (west edge open for the ladder dismount; the south
+  // parapet has a gap where the collapsed walkway to the wing begins)
   addBox(42,.6,20, -11,8.1,-8, M.uescGrey);
   addBox(42,1,.6, -11,8.9,-18, M.uescGrey);
-  addBox(42,1,.6, -11,8.9,2, M.uescGrey);
+  addBox(23,1,.6, -20.5,8.9,2, M.uescGrey);
+  addBox(17,1,.6, 1.5,8.9,2, M.uescGrey);
   addBox(.6,1,20, 10,8.9,-8, M.uescGrey);
   addBox(4,2.4,2.4, -2,9.6,-15, M.genBlack);                   // roof generators / AC
   addBox(2.4,1.6,2.4, 4,9.2,-11, M.uescDark);
@@ -337,17 +342,35 @@ const DEPOT= {x0:18, x1:38, z0:2, z1:17};
   addBox(3,1.2,3, 10.5,1.9,13.5, M.rust, {ry:-.2});
 }
 
-// ---- Barrier + indicator lamps (top of the deck stairs inside the wing) ----
-let barrier;
+/* ----  Collapsed walkway: Orientation roof -> the wing's sealed north door.
+        The guide route — climb the roof, cross the wreckage, and the red
+        barrier door (lamps above it) is straight ahead.  ---- */
+{
+  addBox(1.8,.35,17.6, -8,8.22,10.75, M.hull);                 // walkway span (top ~8.4)
+  addBox(.15,.5,17.6, -8.95,8.75,10.75, M.uescDark, {noCollide:true}); // rails
+  addBox(.15,.5,17.6, -7.05,8.75,10.75, M.uescDark, {noCollide:true});
+  addBox(2.6,.12,4, -8,8.46,6, M.wreckAcid, {ry:.08, noCollide:true}); // buckled plates
+  addBox(2.2,.12,3, -7.8,8.44,14, M.hull, {ry:-.06, noCollide:true});
+  [4,10,16].forEach(z=> addBox(1,8.4,1, -8,4.2,z, M.uescDark)); // support struts
+}
+
+// ---- Barriers + indicator lamps: one red field at the top of the deck
+// stairs, one across the walkway door; both drop when the grid clears. ----
+let barrier, barrier2;
 let barrierLamps=[];
 {
-  barrier = new THREE.Mesh(new THREE.PlaneGeometry(4.6, 4.2),
-    new THREE.MeshBasicMaterial({color:0xff2222, transparent:true, opacity:.35, side:THREE.DoubleSide}));
-  barrier.position.set(-25.9, WING.deckY+2.1, WING.gate.z);
+  const barrierMat = new THREE.MeshBasicMaterial({color:0xff2222, transparent:true, opacity:.35, side:THREE.DoubleSide});
+  barrier = new THREE.Mesh(new THREE.PlaneGeometry(4.6, 4.2), barrierMat);
+  barrier.position.set(-25.9, WING.deckY+2.1, 26.6);
   scene.add(barrier);
-  addBox(.5,4.6,.5, -28.15,WING.deckY+2.3,WING.gate.z, M.uescDark);
-  addBox(.5,4.6,.5, -23.65,WING.deckY+2.3,WING.gate.z, M.uescDark);
-  addBox(5,.4,.4, -25.9,WING.deckY+4.8,WING.gate.z, M.uescDark, {noCollide:true});
+  addBox(.5,4.6,.5, -28.15,WING.deckY+2.3,26.6, M.uescDark);
+  addBox(.5,4.6,.5, -23.65,WING.deckY+2.3,26.6, M.uescDark);
+  addBox(5,.4,.4, -25.9,WING.deckY+4.8,26.6, M.uescDark, {noCollide:true});
+  barrier2 = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 3.6), barrierMat);
+  barrier2.position.set(-8, WING.deckY+1.6, 19.3);
+  scene.add(barrier2);
+  addBox(.5,4,.5, -10,WING.deckY+1.8,19.3, M.uescDark);
+  addBox(.5,4,.5, -6,WING.deckY+1.8,19.3, M.uescDark);
 }
 // Rebuild the row of barrier indicator lamps (on the wing's north lip, visible
 // from the plaza and the Orientation roof) to match the run's target count.

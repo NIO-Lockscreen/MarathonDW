@@ -58,6 +58,7 @@ function destroySwitch(sw){
   flash(destroyed<targetCount ? 'BUTTON '+destroyed+'/'+targetCount+' DOWN' : 'BARRIER OFFLINE - GET UP THE WING');
   if(destroyed===targetCount){
     barrier.visible = false;
+    barrier2.visible = false;
     beep(220,.5,'sawtooth',.2,600);
   }
 }

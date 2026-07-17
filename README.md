@@ -26,12 +26,15 @@ north-up, in their set colors.
 ## The map (north-up, like the TAB map)
 
 - **ORIENTATION** — the central two-floor CTRL building. Lobby stairs reach
-  the second floor; a **ladder on the west face** climbs to the roof (the roof
-  is a clean sightline onto the Destroyed Wing's top-deck buttons).
+  the second floor; a **ladder on the west face** climbs to the roof. From the
+  roof, a **collapsed walkway** crosses to the Destroyed Wing's sealed north
+  door — the community-documented entry route ("climb to the roof of
+  Orientation, then up the destroyed building to the red-barrier doors").
 - **DESTROYED WING** — south of Orientation: a CTRL ground hall with the
-  crashed blue hull on top. Interior stairs go hall → mezzanine → **top deck**
-  (finish zone, gated by the barrier until every button is down). A section
-  juts south over a service yard on pillars.
+  crashed blue hull on top. Two gated ways onto the **top deck** (the finish
+  zone): the roof walkway to the north door, or interior stairs
+  hall → mezzanine → deck. The barrier lamps above the north door show the
+  grid state. A hull section juts south over a service yard on pillars.
 - **B1 rooms** — two below-ground rooms: under the huts west of the map
   (stairs inside the small stair hut) and under the plaza southwest of
   Orientation (open stairwell + a drop-in ceiling hatch).
@@ -105,19 +108,21 @@ elevated · **TOP** up on the Destroyed Wing.
 | 10 | L1 | Sealed hut NE of Orientation — west face |
 | 11 | L1 | Southeast yard — red container, east face |
 
-Note the sightline spawns: **blue 11/12** sit behind the barrier on the wing's
-top deck — snipe them through the gap over the wing's north lip (Orientation
-roof works) or from the top of the deck stairs through the barrier.
+Note the sightline spawns: **blue 11/12** sit behind the barriers on the wing's
+top deck — snipe them through the gap over the wing's north lip from the
+Orientation roof or the walkway door, or from the top of the deck stairs
+through the barrier.
 **Green 7 / blue 10** are high on the wing's outer hull walls; **green 8**
 hangs under the south overhang.
 
 ## Getting around
 
 Interior lobby stairs reach Orientation's second floor; the **ladder** on its
-west face climbs to the roof. In the wing: hall → west stairs → mezzanine →
-second stairs → barrier → top deck (finish). Depot roof is reachable off the
-crate stack by its west door. B1 stairs: inside the west stair hut, and the
-open stairwell on the plaza (mind the open ceiling hatch).
+west face climbs to the roof. Into the wing: roof → collapsed walkway →
+north barrier door → top deck, or hall → west stairs → mezzanine → second
+stairs → barrier → top deck. Depot roof is reachable off the crate stack by
+its west door. B1 stairs: inside the west stair hut, and the open stairwell
+on the plaza (mind the open ceiling hatch).
 
 Open `index.html` in a browser (a static server is fine: `python3 -m http.server`).
 
