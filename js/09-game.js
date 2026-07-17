@@ -1,12 +1,13 @@
 'use strict';
 // ---------- Modes ----------
-// Chosen before each run. `count` batteries spawn; `arrow` shows the nearest-
-// target HUD pointer; `mapActive` reveals the live targets on the TAB map.
+// Chosen before each run. `count` buttons spawn (or `set` = one whole color
+// set); `arrow` shows the nearest-target HUD pointer; `mapActive` rings the
+// live targets on the TAB map (all 39 documented spawns are always drawn).
 const MODES = {
-  1:{ key:'1', name:'GUIDED', count:5,  arrow:true,  mapActive:false, blurb:'Arrow points to the nearest battery' },
-  2:{ key:'2', name:'RECON',  count:5,  arrow:false, mapActive:true,  blurb:'Live batteries shown on the TAB map' },
-  3:{ key:'3', name:'BLIND',  count:5,  arrow:false, mapActive:false, blurb:'No help — learn the spawns' },
-  4:{ key:'4', name:'SWARM',  count:10, arrow:false, mapActive:true,  blurb:'10 batteries at once — map assist on' },
+  1:{ key:'1', name:'GUIDED',   count:5,  arrow:true,  mapActive:false, blurb:'Arrow points to the nearest button' },
+  2:{ key:'2', name:'RECON',    count:5,  arrow:false, mapActive:true,  blurb:'Live buttons ringed on the TAB map' },
+  3:{ key:'3', name:'BLIND',    count:5,  arrow:false, mapActive:false, blurb:'No help — learn the spawns' },
+  4:{ key:'4', name:'FULL SET', set:true, arrow:false, mapActive:true,  blurb:'One whole color set (8-12 buttons)' },
 };
 let assistMode = 3;
 let targetCount = 5;
@@ -34,7 +35,6 @@ function setLamps(n){
 function startRun(mode){
   if(mode && MODES[mode]) assistMode = mode;
   const M = MODES[assistMode];
-  targetCount = M.count;
   bestTime = bestByMode[assistMode] || null;
   bestSplits = null;
 
@@ -44,21 +44,22 @@ function startRun(mode){
   state='play';
   destroyed=0; splitTimes=[]; started=false; t0=0; tEnd=0;
 
+  targetCount = spawnSwitches(M);      // FULL SET runs vary in size (8-12)
   setLamps(targetCount);
   buildBarrierLamps(targetCount);
-  spawnSwitches(targetCount);
 
   document.getElementById('scount').textContent='0/'+targetCount;
   document.getElementById('timer').textContent='00:00.00';
   document.getElementById('bestval').textContent = bestTime!=null ? fmt(bestTime) : '--:--.--';
-  document.getElementById('modetag').textContent = M.name;
+  document.getElementById('modetag').textContent = M.name + (currentSetName? ' · '+currentSetName : '');
   document.getElementById('guide').style.display = M.arrow ? 'block':'none';
   barrier.visible=true;
 
-  player.pos.set(0,0,40); player.vel.set(0,0,0);
-  player.yaw=0; player.pitch=0;
+  // deploy on the south plaza between Orientation and the Destroyed Wing
+  player.pos.set(-6,0,7); player.vel.set(0,0,0);
+  player.yaw=Math.PI; player.pitch=0;
   particles.forEach(p=>scene.remove(p)); particles=[];
-  flash(M.name+' — FIND '+targetCount+' BATTERIES');
+  flash((currentSetName? currentSetName+' SET — ' : M.name+' — ')+'FIND '+targetCount+' BUTTONS');
   if(canvas.requestPointerLock) canvas.requestPointerLock();
 }
 
@@ -90,11 +91,13 @@ function endRun(){
       const dv = s-bestSplits[i];
       d = ' <span class="'+(dv<=0?'d-neg':'d-pos')+'">('+(dv<=0?'':'+')+dv.toFixed(2)+')</span>';
     }
-    rows += 'BATTERY '+(i+1)+' &mdash; '+fmt(s)+d+'<br>';
+    rows += 'BUTTON '+(i+1)+' &mdash; '+fmt(s)+d+'<br>';
   });
   document.getElementById('splits').innerHTML = rows;
   document.getElementById('foundlist').innerHTML =
-    'THIS RUN:<br>' + switches.map(s=>'&#10003; '+s.label).join('<br>');
+    'THIS RUN:<br>' + switches.map(s=>
+      '&#10003; <span style="color:'+SETCOL[s.set]+'">'+s.set+' '+s.num+'</span>'+
+      ' <span style="color:#6a7">['+s.lv+']</span> '+s.label.split(' · ')[1]).join('<br>');
   if(isBest){ bestByMode[assistMode]=t; bestSplits=[...splitTimes]; }
   document.getElementById('bestval').textContent=fmt(bestByMode[assistMode]);
   document.getElementById('end').style.display='flex';

@@ -49,6 +49,41 @@ const containerTex = makeTex((g,w,h)=>{
   g.strokeStyle='rgba(0,0,0,.28)'; g.lineWidth=6;
   for(let x=12;x<w;x+=28){ g.beginPath(); g.moveTo(x,0); g.lineTo(x,h); g.stroke(); }
 },128,128, 2,1);
+// White station panel with the CTRL wordmark + acid stripe (Outpost branding)
+const ctrlTex = makeTex((g,w,h)=>{
+  g.fillStyle='#e2e4e0'; g.fillRect(0,0,w,h);
+  g.strokeStyle='rgba(105,110,108,.5)'; g.lineWidth=3;
+  for(let x=0;x<=w;x+=64){ g.beginPath(); g.moveTo(x,0); g.lineTo(x,h); g.stroke(); }
+  for(let y=0;y<=h;y+=86){ g.beginPath(); g.moveTo(0,y); g.lineTo(w,y); g.stroke(); }
+  for(let i=0;i<18;i++){
+    g.fillStyle='rgba(120,124,120,.16)';
+    g.fillRect(Math.random()*w, Math.random()*h, 4, 16+Math.random()*40);
+  }
+  g.fillStyle='#c8e82a'; g.fillRect(0,h-18,w,8);                    // acid skirt stripe
+  g.fillStyle='#1c2024'; g.font='bold 34px monospace';
+  g.fillText('C T R L', 96, 52);
+  g.strokeStyle='#1c2024'; g.lineWidth=4; g.strokeRect(86,22,120,40);
+  g.beginPath(); g.arc(48,42,20,0,7); g.stroke();                   // roundel
+  g.fillRect(148,h-52,58,10);                                       // data bar
+},256,256, 2,1);
+// Deep-blue ship hull plating with white service decals + acid chevron
+const hullTex = makeTex((g,w,h)=>{
+  g.fillStyle='#14307c'; g.fillRect(0,0,w,h);
+  for(let i=0;i<12;i++){
+    g.fillStyle='rgba(35,72,178,'+(0.25+Math.random()*0.35)+')';
+    g.fillRect((Math.random()*w)|0, (Math.random()*h)|0, 40+Math.random()*70, 26+Math.random()*44);
+  }
+  g.strokeStyle='rgba(8,16,44,.85)'; g.lineWidth=3;
+  for(let x=0;x<=w;x+=86){ g.beginPath(); g.moveTo(x,0); g.lineTo(x,h); g.stroke(); }
+  for(let y=0;y<=h;y+=64){ g.beginPath(); g.moveTo(0,y); g.lineTo(w,y); g.stroke(); }
+  g.fillStyle='rgba(238,242,246,.92)';
+  g.font='bold 17px monospace'; g.fillText('000V@1S2', 18, 40);
+  g.fillRect(18,52,64,6); g.fillRect(150,120,10,10); g.fillRect(166,120,10,10);
+  g.beginPath(); g.arc(200,52,14,0,7); g.strokeStyle='rgba(238,242,246,.9)'; g.lineWidth=4; g.stroke();
+  g.fillStyle='#c8e82a';                                            // acid chevron
+  g.beginPath(); g.moveTo(40,210); g.lineTo(70,180); g.lineTo(84,180);
+  g.lineTo(54,210); g.closePath(); g.fill();
+},256,256, 2,1);
 
 // ---------- Materials ----------
 const M = {
@@ -65,6 +100,15 @@ const M = {
   contRed : new THREE.MeshStandardMaterial({map:containerTex, color:0xb03a2a, roughness:.7}),
   contOlv : new THREE.MeshStandardMaterial({map:containerTex, color:0x6b7a3a, roughness:.7}),
   contBlu : new THREE.MeshStandardMaterial({map:containerTex, color:0x2a5a8a, roughness:.7}),
+  // ---- Outpost art direction ----
+  ctrl    : new THREE.MeshStandardMaterial({map:ctrlTex, roughness:.6}),                    // CTRL white station panels
+  hull    : new THREE.MeshStandardMaterial({map:hullTex, roughness:.5, metalness:.25}),     // deep-blue ship hull
+  wreckAcid: new THREE.MeshStandardMaterial({color:0xc3d92c, roughness:.55}),               // acid-yellow wing chunks
+  acid    : new THREE.MeshStandardMaterial({color:0x37400a, emissive:0xc8e82a, emissiveIntensity:1.1}), // glowing trim
+  ortn    : new THREE.MeshStandardMaterial({color:0x1fb3a3, roughness:.5, metalness:.08}),  // ORTN teal units
+  rock    : new THREE.MeshStandardMaterial({color:0x3d3a35, roughness:1}),
+  water   : new THREE.MeshStandardMaterial({color:0x0a1626, roughness:.12, metalness:.55}),
+  redGlow : new THREE.MeshBasicMaterial({color:0xff2331}),                                  // beacon bars
 };
 
 // ---------- Colliders / occluders ----------

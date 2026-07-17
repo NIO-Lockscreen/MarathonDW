@@ -13,8 +13,8 @@
   #cross{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:20px;color:#fff;text-shadow:0 0 4px #000}
   #cross.hit{color:var(--red)}
   #msg{position:fixed;top:26%;left:50%;transform:translateX(-50%);font-size:22px;color:#fff;text-shadow:0 0 10px var(--acid);opacity:0;transition:opacity .3s;text-align:center;letter-spacing:1px}
-  #map{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);display:none;background:rgba(4,8,4,.92);border:1px solid var(--acid);padding:10px}
-  #map canvas{display:block}
+  #map{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);display:none;background:rgba(6,10,16,.94);border:1px solid var(--acid);padding:10px;max-width:96vw}
+  #map canvas{display:block;max-width:100%}
   #maptitle{font-size:12px;letter-spacing:3px;color:var(--acid);text-align:center;margin-bottom:6px}
   .screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(4,6,4,.9);z-index:10;text-align:center;padding:20px;overflow:auto}
   .screen h1{font-size:clamp(28px,6vw,58px);letter-spacing:6px;color:#fff;text-shadow:0 0 18px var(--acid);margin-bottom:6px}

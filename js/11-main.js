@@ -24,7 +24,9 @@ function updateGuide(){
 
 function groundHeightAt(x,z,curY){
   let h = 0;
-  if(x>TR.x-4.5 && x<TR.x+4.5 && z>-20 && z<20) h=-3;
+  for(const p of PITS){                       // B1 basement rooms sit below grade
+    if(x>p.x0 && x<p.x1 && z>p.z0 && z<p.z1){ h=p.floor; break; }
+  }
   for(const bb of colliders){
     if(x>bb.min.x-player.r && x<bb.max.x+player.r && z>bb.min.z-player.r && z<bb.max.z+player.r){
       if(bb.max.y<=curY+STEP && bb.max.y>h) h=bb.max.y;
@@ -120,15 +122,16 @@ function tick(){
       else player.onGround = (player.pos.y-gh) < .02;
     }
 
-    // Barrier at z=24 blocks entry into the hull (over the Orientation roof)
-    // until all batteries are down. Approach comes from the south (z>24).
-    if(destroyed<targetCount && Math.abs(player.pos.x)<7.4 && player.pos.y>WING.deckY-1.2 &&
-       player.pos.z<25 && player.pos.z>22){
-      player.pos.z=25;
+    // Barrier at the top of the wing's deck stairs blocks the last climb until
+    // every button is down. Approach climbs north->south up the second stair.
+    const gp = player.pos, GT = WING.gate;
+    if(destroyed<targetCount && gp.y>GT.y && gp.x>GT.x0 && gp.x<GT.x1 &&
+       gp.z>GT.z-1.2 && gp.z<GT.z+.6){
+      gp.z = GT.z-1.2;
     }
-    // Crossing the barrier north into the hull interior = run complete.
-    if(destroyed===targetCount && player.pos.z<23.5 && player.pos.z>-14 &&
-       Math.abs(player.pos.x)<7.4 && player.pos.y>WING.deckY-1.2){
+    // Setting foot on the wing's top deck (inside the wreck) = run complete.
+    if(destroyed===targetCount && gp.y>WING.finishY &&
+       WING.finish.some(f=> gp.x>f.x0 && gp.x<f.x1 && gp.z>f.z0 && gp.z<f.z1)){
       endRun();
     }
 
@@ -172,10 +175,10 @@ function tick(){
   }});
   if(barrier.visible) barrier.material.opacity = .28+.12*Math.sin(now*.004);
 
-  // drones patrol
+  // drones patrol (orbits centered off the coast, over the sea)
   drones.forEach(d=>{
     d.a += d.s*dt;
-    d.o.position.set(Math.sin(d.a)*d.r, d.h + Math.sin(now*.001+d.r)*0.8, 10+Math.cos(d.a)*d.r);
+    d.o.position.set(18+Math.sin(d.a)*d.r, d.h + Math.sin(now*.001+d.r)*0.8, -26+Math.cos(d.a)*d.r);
     d.o.rotation.y = -d.a;
     d.l.intensity = .5 + .5*Math.sin(now*.008+d.r);
   });

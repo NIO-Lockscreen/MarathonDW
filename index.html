@@ -20,25 +20,25 @@
   <div id="cross">+</div>
   <div id="guide"><i></i></div>
   <div id="msg"></div>
-  <div id="map"><div id="maptitle">TAC MAP</div><canvas id="mapcv" width="420" height="560"></canvas></div>
+  <div id="map"><div id="maptitle">TAC MAP</div><canvas id="mapcv" width="540" height="420"></canvas></div>
   <div id="hint" class="panel">WASD / L-STICK move &middot; SHIFT / LT sprint &middot; SPACE / A jump &middot; CLICK / RT shoot &middot; TAB / LB map &middot; R / START restart</div>
 </div>
 
 <div id="start" class="screen">
   <h1>SWITCH HUNT</h1>
-  <h2>DESTROYED WING // OUTPOST // PATCH 1.0.5.2</h2>
-  <p>Wall batteries power the Destroyed Wing barrier. Each run they spawn at <span class="k">a random set of 40 documented locations</span> spread across the switch-hunt zones: <span class="k">inside, outside and on top of Orientation</span> (both floors and the roof), <span class="k">underneath Orientation near the road</span>, <span class="k">inside the Destroyed Wing</span>, and the <span class="k">left and right sides of Pinwheel</span>.</p>
-  <p>Shoot every white box (glowing <span style="color:var(--red)">red square</span>), then sprint up the rubble ramp and through the barrier into the Destroyed Wing &mdash; the hull sits <span class="k">above the two-floor Orientation building</span>. Clock stops inside. Hold <span class="k">TAB</span> for the tac map. Stairs inside the lobby reach the second floor; a <span class="k">ladder</span> on the west face climbs to the roof.</p>
-  <p><span class="k">WASD</span> / left stick move &middot; <span class="k">SHIFT</span>/LT sprint &middot; <span class="k">SPACE</span>/A jump &middot; <span class="k">CLICK</span>/RT shoot &middot; <span class="k">TAB</span>/LB map &middot; ladder on the west face climbs to the roof</p>
+  <h2>OUTPOST // ORIENTATION QUADRANT // PATCH 1.0.5.2</h2>
+  <p>Hidden buttons power the Destroyed Wing barrier. The <span class="k">39 documented spawn points</span> from the community guide are all here, in their four color sets &mdash; <span style="color:#c85fd6">PURPLE 8</span> &middot; <span style="color:#38b6f0">BLUE 12</span> &middot; <span style="color:#41c95e">GREEN 8</span> &middot; <span style="color:#e8483f">RED 11</span> &mdash; across <span class="k">four heights</span>: the <span class="k">B1 rooms below ground</span> (west huts + under the south plaza), <span class="k">ground level</span>, <span class="k">Orientation's second floor</span>, and <span class="k">up on the Destroyed Wing</span> (hull walls outside, wreck chunks on the top deck, one hanging under the south overhang).</p>
+  <p>Shoot every button (glowing <span style="color:var(--red)">red square</span>), then run the wing: hall &rarr; mezzanine &rarr; barrier at the top of the stairs &rarr; <span class="k">top deck stops the clock</span>. Hold <span class="k">TAB</span> for the guide map &mdash; all 39 numbered spawns are drawn on it. Lobby stairs reach Orientation's second floor; the <span class="k">west-face ladder</span> climbs to its roof (a clean line on the wing's top-deck buttons).</p>
+  <p><span class="k">WASD</span> / left stick move &middot; <span class="k">SHIFT</span>/LT sprint &middot; <span class="k">SPACE</span>/A jump &middot; <span class="k">CLICK</span>/RT shoot &middot; <span class="k">TAB</span>/LB map &middot; <span class="k">R</span>/START restart</p>
   <h2 style="margin:18px 0 8px">CHOOSE A MODE TO DEPLOY</h2>
   <div class="modes">
-    <button class="mbtn" id="mode1"><b>1 · GUIDED</b><span>Arrow points to nearest &middot; 5 batteries</span></button>
+    <button class="mbtn" id="mode1"><b>1 · GUIDED</b><span>Arrow points to nearest &middot; 5 buttons</span></button>
     <button class="mbtn" id="mode2"><b>2 · RECON</b><span>Live targets on the map &middot; 5</span></button>
-    <button class="mbtn" id="mode3"><b>3 · BLIND</b><span>No help &middot; 5 batteries</span></button>
-    <button class="mbtn" id="mode4"><b>4 · SWARM</b><span>10 batteries at once &middot; map on</span></button>
+    <button class="mbtn" id="mode3"><b>3 · BLIND</b><span>No help &middot; 5 buttons</span></button>
+    <button class="mbtn" id="mode4"><b>4 · FULL SET</b><span>One whole color set &middot; 8&ndash;12</span></button>
   </div>
   <div id="loadnote">loading assets&hellip;</div>
-  <div class="padnote">Gamepad: A GUIDED &middot; X RECON &middot; B BLIND &middot; Y SWARM &middot; START repeats</div>
+  <div class="padnote">Gamepad: A GUIDED &middot; X RECON &middot; B BLIND &middot; Y FULL SET &middot; START repeats</div>
   <div class="tag">FAN-MADE TRAINER &middot; LAYOUT APPROXIMATED FROM COMMUNITY GUIDES &middot; MODELS: KENNEY.NL (CC0) &middot; NOT AFFILIATED WITH BUNGIE</div>
 </div>
 
@@ -53,7 +53,7 @@
     <button class="mbtn" id="emode1"><b>1 · GUIDED</b><span>Arrow to nearest &middot; 5</span></button>
     <button class="mbtn" id="emode2"><b>2 · RECON</b><span>Targets on map &middot; 5</span></button>
     <button class="mbtn" id="emode3"><b>3 · BLIND</b><span>No help &middot; 5</span></button>
-    <button class="mbtn" id="emode4"><b>4 · SWARM</b><span>10 &middot; map on</span></button>
+    <button class="mbtn" id="emode4"><b>4 · FULL SET</b><span>One color set &middot; 8&ndash;12</span></button>
   </div>
   <div class="tag">SPAWNS RE-ROLL EVERY RUN &middot; <span class="k">R</span> repeats the last mode</div>
 </div>

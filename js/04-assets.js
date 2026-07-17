@@ -14,16 +14,17 @@ function loadGLB(key, onOk){
   }, undefined, err=>{ console.warn('model failed:',key,err); assetDone(); });
 }
 
-// Truck at its spawn point
+// Truck parked on the depot apron
 loadGLB('truck', obj=>{
   obj.scale.setScalar(2.1);
   obj.position.set(truckPos.x, 0, truckPos.z);
-  obj.rotation.y = Math.PI*.02;
+  obj.rotation.y = Math.PI*.06;
   scene.add(obj);
   obj.traverse(o=>{ if(o.isMesh) occluders.push(o); });
 });
 
-// Patrol scan drones
+// Patrol scan drones — they sweep out over the sea and back across the coast,
+// high enough to clear the Destroyed Wing wreck.
 const drones=[];
 loadGLB('drone', obj=>{
   for(let i=0;i<3;i++){
@@ -33,7 +34,7 @@ loadGLB('drone', obj=>{
     light.position.y = -0.5;
     d.add(light);
     scene.add(d);
-    drones.push({o:d, a:i*2.1, r:26+i*8, h:13+i*2.5, s:.14+i*.03, l:light});
+    drones.push({o:d, a:i*2.1, r:26+i*8, h:17+i*2.5, s:.14+i*.03, l:light});
   }
 });
 

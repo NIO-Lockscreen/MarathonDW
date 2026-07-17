@@ -1,7 +1,7 @@
 'use strict';
 // ---------- Player ----------
 const player = {
-  pos: new THREE.Vector3(0, 0, -36),
+  pos: new THREE.Vector3(-6, 0, 7),
   vel: new THREE.Vector3(),
   yaw: Math.PI, pitch: 0,
   onGround: true,

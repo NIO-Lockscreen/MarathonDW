@@ -55,7 +55,7 @@ function destroySwitch(sw){
   if(barrierLamps[destroyed-1]) barrierLamps[destroyed-1].material.color.set(0x224400);
   document.getElementById('scount').textContent = destroyed+'/'+targetCount;
   beep(500+destroyed*120,.12,'square',.18);
-  flash(destroyed<targetCount ? 'BATTERY '+destroyed+'/'+targetCount+' DOWN' : 'BARRIER OFFLINE - GO GO GO');
+  flash(destroyed<targetCount ? 'BUTTON '+destroyed+'/'+targetCount+' DOWN' : 'BARRIER OFFLINE - GET UP THE WING');
   if(destroyed===targetCount){
     barrier.visible = false;
     beep(220,.5,'sawtooth',.2,600);

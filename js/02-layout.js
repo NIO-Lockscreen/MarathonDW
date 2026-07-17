@@ -1,10 +1,15 @@
 'use strict';
 /* =====================  LAYOUT  =====================
-   World geometry, updated to the Orientation quadrant map:
-   - ORIENTATION is a grounded TWO-FLOOR building with a walkable
-     interior (lobby + second floor), stairwells and a roof.
-   - The DESTROYED WING is an elevated crashed hull whose deck runs
-     from the south rubble field OVER the Orientation roof.
+   Outpost / Orientation quadrant, rebuilt to the community button-spawn
+   guide map (world axes: +x = east, -z = north — the TAB map is north-up):
+
+        NW mega-structure   |  north road -> tip     |   SEA
+        west huts + B1 rooms|  ORIENTATION (2 floors)|   sealed hut / bridge
+        plaza B1 rooms      |  south plaza           |   DEPOT   far-east blocks
+        SW yard             |  DESTROYED WING        |   SE yard
+
+   Four button heights: B1 basement (-4.2), ground (0), Orientation 2F (+4.2),
+   Destroyed Wing upper walls / top deck (+8.4..+10).
    Everything solid goes through addBox() so it collides + occludes. */
 
 // Build a climbable ladder: visual rails + rungs (non-colliding) plus a climb
@@ -16,12 +21,43 @@ function addLadder(cx, cz, base, top, land){
   for(let i=0;i<=n;i++) addBox(1.2,.09,.09, cx, base+i*0.45, cz, M.uescDark, {noCollide:true});
   ladders.push({ x0:cx-.9, x1:cx+.9, z0:cz-1.1, z1:cz+1.1, base, top:top+.1, land });
 }
+// Ground-level road/pad strip (visual only)
+function addPad(w,d, x,z, ry){
+  const p = new THREE.Mesh(new THREE.PlaneGeometry(w,d), M.pad);
+  p.rotation.x = -Math.PI/2; if(ry) p.rotation.z = ry;
+  p.position.set(x,.03,z); p.receiveShadow = true;
+  scene.add(p); occluders.push(p);
+  return p;
+}
+// Cool-white station floodlight
+function addFlood(x,y,z, i=.85, d=22, col=0xcfe2ff){
+  const l = new THREE.PointLight(col, i, d);
+  l.position.set(x,y,z); scene.add(l); return l;
+}
 
-// ---- Ground (4 quads leaving a hole for the trench) ----
+// ---- Shared anchors ----
+const OR   = { x0:-32, x1:10, z0:-18, z1:2, f2:4.2, roofY:8.4 };     // Orientation
+const WING = { x0:-28, x1:8, z0:12, z1:34, mezzY:4.2, deckY:8.4,     // Destroyed Wing
+  gate:  {x0:-28.6, x1:-23.2, z:26.6, y:7},        // barrier at the top of the deck stairs
+  finishY: 7.2,                                    // top-deck interior = clock stop, but only
+  finish:[ {x0:-28.5, x1:-23.5, z0:27.2, z1:34},   // PAST the gate line (west strip)…
+           {x0:-23.5, x1:7,     z0:20,   z1:34} ]};// …or on the main deck
+// Below-ground rooms (B1). groundHeightAt() treats these as the base floor.
+const PITS = [
+  {x0:-61, x1:-47, z0:-29, z1:-15, floor:-4.2, name:'WEST ROOMS'},
+  {x0:-35, x1:-15, z0: -1, z1: 11, floor:-4.2, name:'PLAZA ROOMS'},
+];
+const SEA  = {x0:16, x1:85, z0:-85, z1:-14};
+const DEPOT= {x0:18, x1:38, z0:2, z1:17};
+
+// ---- Ground (quads leaving holes for the two B1 rooms and the sea) ----
 {
-  const hole = {x0:-32.5, x1:-23.5, z0:-20, z1:20};
-  [[-200, hole.x0, -200, 200],[hole.x1, 200, -200, 200],
-   [hole.x0, hole.x1, -200, hole.z0],[hole.x0, hole.x1, hole.z1, 200]]
+  [[-80, 16,-85,-29],
+   [-80,-61,-29,-15],[-47, 16,-29,-15],
+   [-80, 16,-15,-14],
+   [-80, 85,-14, -1],
+   [-80,-35, -1, 11],[-15, 85, -1, 11],
+   [-80, 85, 11, 40]]
   .forEach(([x0,x1,z0,z1])=>{
     const g = new THREE.Mesh(new THREE.PlaneGeometry(x1-x0, z1-z0), M.ground);
     g.rotation.x=-Math.PI/2;
@@ -29,239 +65,386 @@ function addLadder(cx, cz, base, top, land){
     g.receiveShadow = true;
     scene.add(g); occluders.push(g);
   });
+  // the sea (northeast) + shoreline rocks so nobody walks off the map
+  const sea = new THREE.Mesh(new THREE.PlaneGeometry(SEA.x1-SEA.x0, SEA.z1-SEA.z0), M.water);
+  sea.rotation.x=-Math.PI/2; sea.position.set((SEA.x0+SEA.x1)/2, -.8, (SEA.z0+SEA.z1)/2);
+  scene.add(sea); occluders.push(sea);
+  [[15.5,-70,2.6],[15,-61,3.6],[15.8,-52,2.9],[15.2,-43,4.1],[15.6,-34,3.1],[15,-25,2.7],[15.5,-17,3.9]]
+    .forEach(([x,z,h])=> addBox(4,h,7.5, x,h/2,z, M.rock, {ry:x*.3}));
+  [[20,-14,3],[29,-13.6,2.6],[38,-14.2,3.4],[47,-13.8,2.8],[56,-14,3.2],[65,-13.7,2.7],[74,-14.2,3.6]]
+    .forEach(([x,z,h])=> addBox(7,h,3.5, x,h/2,z, M.rock, {ry:z*.2}));
 }
 
-// ---- Pinwheel core + playable LEFT / RIGHT sides ----
-// The rotating tower is a slimmer backdrop now; the left and right pylon
-// structures around it are walkable so batteries can spawn on both sides.
-const PIN = { z:78 };
+// ---- Roads (visual pads; the plaza pads skirt the B1 stair opening) ----
 {
-  // central rotating tower (backdrop; only the core collides)
-  for(let i=0;i<7;i++){
-    const r = 10 - i*0.9;
-    const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r+1.2, 6, 8), i%2? M.uescGrey : M.uescWhite);
-    m.position.set(0, 3+i*6, PIN.z);
-    m.rotation.y = i*.35;
-    m.castShadow = m.receiveShadow = true;
-    scene.add(m);
-  }
-  colliders.push(new THREE.Box3(new THREE.Vector3(-11,0,PIN.z-11), new THREE.Vector3(11,45,PIN.z+11)));
-
-  // approach apron (south of the tower) so the base reads as a plaza
-  const apron = new THREE.Mesh(new THREE.PlaneGeometry(64,30), M.pad);
-  apron.rotation.x=-Math.PI/2; apron.position.set(0,.02,PIN.z-16); apron.receiveShadow=true;
-  scene.add(apron); occluders.push(apron);
-
-  // left (-x) and right (+x) pylon blocks with inner mounting walls + canopies
-  [-1,1].forEach(sx=>{
-    addBox(4,6,18, sx*20, 3, PIN.z, M.uescGrey);                 // pylon block
-    addBox(.6,4,18, sx*17.3, 2.5, PIN.z, M.uescWhite);           // inner wall (mount face)
-    addBox(12,1,18, sx*13, 6.5, PIN.z, M.uescDark, {noCollide:true}); // canopy
-    // a couple of crates at the base for low mounts (axis-aligned so the
-    // battery mounts sit cleanly proud of the faces)
-    addBox(2.4,2.4,2.4, sx*18, 1.2, PIN.z-13, M.contBlu);
-    addBox(2.4,2.4,2.4, sx*15, 1.2, PIN.z-11, M.contOlv);
-  });
-
-  for(let i=0;i<3;i++){
-    const l = new THREE.PointLight(0xff3020,.8,30);
-    l.position.set(Math.sin(i*2.1)*8, 12+i*12, PIN.z+Math.cos(i*2.1)*8);
-    scene.add(l);
-  }
+  addPad(11,8, -28.5,6);  addPad(29,8, .5,6);          // south plaza (around stair hole x -22..-15)
+  addPad(7,2.2, -18.5,8.9); addPad(7,.6, -18.5,2.3);
+  addPad(8,22, -42,3);                                  // southwest approach
+  addPad(8,26, -31,-12, -.55);                          // junction diagonal (SW -> NW corner)
+  addPad(7,24, -23,-34, -.06);                          // north road, lower leg
+  addPad(16,20, 12,20);                                 // southeast yard road
+  addPad(40,8, 30,3);                                   // east bridge road -> depot
+  addPad(22,8, 61,7);                                   // far-east pass
+}
+{ // north road, upper leg runs at an angle toward the tip
+  const p = new THREE.Mesh(new THREE.PlaneGeometry(7,36), M.pad);
+  p.rotation.x=-Math.PI/2; p.rotation.z = -Math.atan2(27,-22);
+  p.position.set(-8.5,.032,-57); p.receiveShadow=true; scene.add(p); occluders.push(p);
 }
 
-/* ---- Orientation building (two floors + interior + roof) ----
-   Footprint x -17..17, z -26..-2. Ground floor 0..3.6, slab 3.6..4.2,
-   second floor 4.2..7.8, roof slab 7.8..8.4 (roofY = walkable roof). */
-const OR = { x:0, z:-14, w:34, d:24, f2:4.2, roofY:8.4 };
+/* =================  B1 — UNDERGROUND ROOMS (purple 1/2, green 2/3)  ================= */
 {
-  // interior floor pad
-  addBox(OR.w, .2, OR.d, 0, .1, -14, M.pad);
+  // --- West rooms (under the huts west of the map) ---
+  addBox(14,.4,14, -54,-4.4,-22, M.pad);                       // floor (top -4.2)
+  addBox(.6,4.2,14, -61,-2.1,-22, M.ctrl);                     // west wall (purple 1)
+  addBox(.6,4.2,14, -47,-2.1,-22, M.ctrl);                     // east wall
+  addBox(14.6,4.2,.6, -54,-2.1,-29, M.ctrl);                   // north wall (purple 2)
+  addBox(14.6,4.2,.6, -54,-2.1,-15, M.ctrl);                   // south wall
+  addBox(7,.4,14, -57.5,-.2,-22, M.pad);                       // ceiling (minus stair hole)
+  addBox(7,.4,5, -50.5,-.2,-26.5, M.pad);
+  addBox(7,.4,4, -50.5,-.2,-17, M.pad);
+  for(let i=0;i<10;i++) addBox(.62,.42,4.6, -47.9-i*.62, -.21-i*.42, -21.5, M.uescGrey);
+  addBox(2.4,2.4,2.4, -58.5,-3,-26.5, M.contBlu);              // stored cargo
+  addBox(2.4,1.2,2.4, -58.5,-1.2,-26.5, M.contOlv);
+  addBox(2,2,2, -58.8,-3.2,-18, M.contRed);
+  addBox(6,.1,.3, -54,-.62,-22, M.acid, {noCollide:true,noShadow:true}); // ceiling light strip
+  addFlood(-54,-1.4,-22, .8, 18);
+  addFlood(-49,-1.6,-20, .5, 12, 0xc8e82a);
 
-  // ground floor walls (south door x -2.5..2.5, north door x 4.5..8.5,
-  // west door z -22..-18 toward the garage alley, east solid)
-  addBox(14.5,3.6,.6, -9.75,1.8,-2.3,  M.uescWhite);
-  addBox(14.5,3.6,.6,  9.75,1.8,-2.3,  M.uescWhite);
-  addBox(21.5,3.6,.6, -6.25,1.8,-25.7, M.uescWhite);
-  addBox( 8.5,3.6,.6, 12.75,1.8,-25.7, M.uescWhite);
-  addBox(.6,3.6, 3.4, -16.7,1.8,-23.7, M.uescWhite);
-  addBox(.6,3.6,15.4, -16.7,1.8,-10.3, M.uescWhite);
-  addBox(.6,3.6,22.8,  16.7,1.8,-14,   M.uescWhite);
+  // stair hut on the surface (door faces the west road)
+  addBox(8,3,.6, -50.5,1.5,-25, M.ctrl);
+  addBox(8,3,.6, -50.5,1.5,-18, M.ctrl);
+  addBox(.6,3,7.6, -54.5,1.5,-21.5, M.ctrl);
+  addBox(.6,3,2.5, -46.5,1.5,-23.75, M.ctrl);
+  addBox(.6,3,2.5, -46.5,1.5,-19.25, M.ctrl);
+  addBox(8.6,.4,7.6, -50.5,3.2,-21.5, M.uescGrey);
+  addBox(8,.16,.16, -50.5,3.45,-18.05, M.acid, {noCollide:true,noShadow:true});
+  // decor huts (the two small buildings on the guide map)
+  addBox(3,2.6,3, -58.5,1.3,-18, M.ctrl);
+  addBox(3.5,2.6,3, -56,1.3,-25.5, M.ctrl);
 
-  // lobby pillars + reception desk
-  addBox(1.4,3.6,1.4, -5,1.8,-14, M.uescDark);
-  addBox(1.4,3.6,1.4,  5,1.8,-14, M.uescDark);
-  addBox(4,1.1,1.5, 0,.55,-7, M.uescDark);
+  // --- Plaza rooms (under the plaza southwest of Orientation) ---
+  addBox(20,.4,12, -25,-4.4,5, M.pad);                         // floor
+  addBox(.6,4.2,12, -35,-2.1,5, M.ctrl);                       // west wall
+  addBox(.6,4.2,12, -15,-2.1,5, M.ctrl);                       // east wall
+  addBox(20.6,4.2,.6, -25,-2.1,-1, M.ctrl);                    // north wall (green 2)
+  addBox(20.6,4.2,.6, -25,-2.1,11, M.ctrl);                    // south wall
+  addBox(1.3,4.2,1.3, -21.5,-2.1,9, M.uescDark);               // center pillar (green 3) — clear of the stairs
+  addBox(1.3,4.2,1.3, -28,-2.1,7.6, M.uescDark);
+  // ceiling minus the stair hole (x -22..-15, z 2.5..7.5) and the open hatch (x -30..-28, z 6..8)
+  addBox(5,.4,12, -32.5,-.2,5, M.pad);
+  addBox(2,.4,7, -29,-.2,2.5, M.pad);
+  addBox(2,.4,3, -29,-.2,9.5, M.pad);
+  addBox(6,.4,12, -25,-.2,5, M.pad);
+  addBox(7,.4,3.5, -18.5,-.2,.75, M.pad);
+  addBox(7,.4,3.5, -18.5,-.2,9.25, M.pad);
+  for(let i=0;i<10;i++) addBox(.62,.42,4.6, -15.65-i*.62, -.21-i*.42, 5, M.uescGrey);
+  // hatch rim + grate bars over the open ceiling hole
+  addBox(.3,.25,2.4, -30.15,.12,7, M.hazard); addBox(.3,.25,2.4, -27.85,.12,7, M.hazard);
+  for(let i=0;i<4;i++) addBox(2.3,.05,.08, -29,-.05,6.3+i*.5, M.uescDark, {noCollide:true,noShadow:true});
+  addBox(2.4,2.4,5, -32.6,-3,8, M.contBlu);
+  addBox(6,.1,.3, -25,-.62,5, M.acid, {noCollide:true,noShadow:true});
+  addFlood(-25,-1.4,5, .8, 20);
+  addFlood(-31,-1.8,7, .45, 10, 0xc8e82a);
+}
 
-  // slab between floors, stairwell hole x -15..-9 / z -24..-18
-  addBox(34,.6,16, 0,3.9,-10, M.uescGrey);
-  addBox(34,.6, 2, 0,3.9,-25, M.uescGrey);
-  addBox( 2,.6, 6,-16,3.9,-21, M.uescGrey);
-  addBox(26,.6, 6,  4,3.9,-21, M.uescGrey);
-
-  // stairwell: ground -> second floor, second floor -> roof
-  // interior stairwell reaches the SECOND FLOOR only; the roof is ladder-access.
-  for(let i=0;i<10;i++) addBox(6,.42,.6, -12,      .21+i*.42, -18.3-i*.6, M.uescGrey);
-
-  // second floor walls (south = window band, rest solid)
-  addBox(34,1.2,.6, 0,4.8,-2.3, M.uescWhite);
-  addBox(34,1.6,.2, 0,6.2,-2.3, M.glass, {noShadow:true});
-  addBox(34, .8,.6, 0,7.4,-2.3, M.uescWhite, {noCollide:true});
-  addBox(34,3.6,.6, 0,6,-25.7,  M.uescWhite);
-  addBox(.6,3.6,22.8, -16.7,6,-14, M.uescWhite);
-  addBox(.6,3.6,22.8,  16.7,6,-14, M.uescWhite);
-
-  // roof slab (same stairwell hole)
-  addBox(34,.6,16, 0,8.1,-10, M.uescGrey);
-  addBox(34,.6, 2, 0,8.1,-25, M.uescGrey);
-  addBox( 2,.6, 6,-16,8.1,-21, M.uescGrey);
-  addBox(26,.6, 6,  4,8.1,-21, M.uescGrey);
-
+/* =================  ORIENTATION (two floors + roof; blue 1-9 etc.)  ================= */
+{
+  addBox(42,.2,20, -11,.1,-8, M.pad);                          // interior floor pad
+  // ground-floor walls — doors: S x-14..-10 & x-2..2, N x-8..-4, W z-12..-9, E z-6..-2
+  addBox(18,3.6,.6, -23,1.8,2, M.ctrl);
+  addBox(8,3.6,.6, -6,1.8,2, M.ctrl);
+  addBox(8,3.6,.6, 6,1.8,2, M.ctrl);
+  addBox(24,3.6,.6, -20,1.8,-18, M.ctrl);
+  addBox(14,3.6,.6, 3,1.8,-18, M.ctrl);
+  addBox(.6,3.6,6, -32,1.8,-15, M.ctrl);
+  addBox(.6,3.6,11, -32,1.8,-3.5, M.ctrl);
+  addBox(.6,3.6,12, 10,1.8,-12, M.ctrl);
+  addBox(.6,3.6,4, 10,1.8,0, M.ctrl);
+  // lobby: west pillar pair (blue 1/2), console (blue 3), reception desk
+  addBox(1.3,3.6,1.3, -25.2,1.8,-13.6, M.uescDark);
+  addBox(1.3,3.6,1.3, -25.2,1.8,-8.9, M.uescDark);
+  addBox(2.6,1.3,1.2, -19,.65,-8.6, M.genBlack);
+  addBox(4,1.1,1.5, -4,.55,-13, M.uescDark);
+  // slab between floors, stairwell hole x -16..-10 / z -16..-8
+  addBox(42,.6,10, -11,3.9,-3, M.uescGrey);
+  addBox(42,.6,2, -11,3.9,-17, M.uescGrey);
+  addBox(16,.6,8, -24,3.9,-12, M.uescGrey);
+  addBox(20,.6,8, 0,3.9,-12, M.uescGrey);
+  // stairwell: ground -> second floor (roof stays ladder-access)
+  for(let i=0;i<10;i++) addBox(5,.42,.62, -13, .21+i*.42, -8.6-i*.68, M.uescGrey);
+  addBox(6,.42,1.4, -13,3.99,-15.6, M.uescGrey);
+  // second-floor walls (south = window band over a solid sill)
+  addBox(42,3.6,.6, -11,6,-18, M.ctrl);
+  addBox(.6,3.6,20, -32,6,-8, M.ctrl);
+  addBox(.6,3.6,20, 10,6,-8, M.ctrl);
+  addBox(42,1.2,.6, -11,4.8,2, M.ctrl);
+  addBox(42,1.6,.2, -11,6.2,2, M.glass, {noShadow:true});
+  addBox(42,.8,.6, -11,7.4,2, M.ctrl, {noCollide:true});
+  // 2F props: center pillar (blue 5), east rack (blue 8), north rack row (blue 9)
+  addBox(1.2,3.6,1.2, -5,6,-9.3, M.uescDark);
+  addBox(1,2.4,3, 4.6,5.4,-10.4, M.genBlack);
+  addBox(3,2.4,1, -2,5.4,-14.2, M.genBlack);
+  // roof slab + parapets (west edge open for the ladder dismount)
+  addBox(42,.6,20, -11,8.1,-8, M.uescGrey);
+  addBox(42,1,.6, -11,8.9,-18, M.uescGrey);
+  addBox(42,1,.6, -11,8.9,2, M.uescGrey);
+  addBox(.6,1,20, 10,8.9,-8, M.uescGrey);
+  addBox(4,2.4,2.4, -2,9.6,-15, M.genBlack);                   // roof generators / AC
+  addBox(2.4,1.6,2.4, 4,9.2,-11, M.uescDark);
+  addLadder(-32.6, -6, 0, OR.roofY, {x:-29.5, y:OR.roofY, z:-6});
+  // ORTN teal cladding on the east end + acid roofline (image 4 look)
+  addBox(.35,3.2,10, 10.5,1.9,-11, M.ortn, {noCollide:true});
+  addBox(42,.22,.22, -11,8.5,2.12, M.acid, {noCollide:true,noShadow:true});
+  addBox(24,.22,.22, -20,8.5,-18.12, M.acid, {noCollide:true,noShadow:true});
   // interior ceiling lamps + lights (both floors)
   const lampMat = new THREE.MeshStandardMaterial({color:0xdde8ff, emissive:0xaac8ff, emissiveIntensity:1.2});
-  [[-7,3.5,-8],[7,3.5,-20],[-7,7.7,-20],[7,7.7,-8]].forEach(([x,y,z])=>{
+  [[-24,3.45,-4],[2,3.45,-13],[-24,7.65,-13],[2,7.65,-4]].forEach(([x,y,z])=>{
     addBox(2,.1,2, x,y,z, lampMat, {noCollide:true, noShadow:true});
-    const l = new THREE.PointLight(0xbfd8ff,.8,18);
-    l.position.set(x, y-.4, z);
-    scene.add(l);
-  });
-
-  // ROOF ACCESS: a ladder on the west face (replaces the old exterior stairs).
-  addLadder(-17.6, -6, 0, OR.roofY, {x:-14.5, y:OR.roofY, z:-6});
-
-  // roof parapets (north + east; west stays open for the ladder dismount)
-  addBox(34,1,.6, 0,8.9,-25.7, M.uescGrey);
-  addBox(.6,1,22.8, 16.7,8.9,-14, M.uescGrey);
-
-  // roof generators, north of the crashed wing hull
-  addBox(4,2.4,2.4,  9, OR.roofY+1.2, -22, M.genBlack);
-  addBox(4,2.4,2.4, -2, OR.roofY+1.2, -24, M.genBlack);
-  // rooftop AC unit (mid roof, a mount point away from the hull)
-  addBox(2.4,1.6,2.4, 6, OR.roofY+.8, -12, M.uescDark);
-
-  // crash debris where the wing came down on the roof
-  addBox(2.5,1,2.5, -11, OR.roofY+.5, -5, M.rust, {ry:.7});
-
-  // garage block west of the building
-  addBox(10, 5, 12, -25.5, 2.5, -22, M.uescGrey);
-  addBox(.4, 4, 8, -20.3, 2, -22, M.hazard, {noCollide:true, noShadow:true});
-
-  // NuCaloric kiosk wall + vending machines (outside the north face)
-  addBox(10, 3, .6, 7, 1.5, -27, M.uescDark);
-  [6.5, 8.7].forEach((x,i)=>{
-    addBox(1.8,3,1.2, x, 1.5, -28.2, M.vend);
-    const s = new THREE.Mesh(new THREE.PlaneGeometry(1.3,2.1),
-      new THREE.MeshBasicMaterial({color:i?0x66ccff:0xffaa33}));
-    s.position.set(x, 1.55, -28.85);
-    s.rotation.y = Math.PI;
-    scene.add(s);
+    addFlood(x, y-.4, z, .7, 17);
   });
 }
 
-/* ---- Destroyed Wing (crashed hull OVER the Orientation roof) ----
-   Deck runs z -14..30 at deckY 12; the north span rests on the
-   building roof, the south span stands on pillars over the road.
-   Entry: rubble ramp (east) -> low wall hop into the south pocket
-   -> barrier at z 24 -> hull interior (finish zone). */
-const WING = { deckY: 12 };
+/* ----  Sealed hut NE of Orientation (red 10) + red light-bar antenna  ---- */
 {
-  addBox(16, 1.2, 44, 0, WING.deckY-.6, 8, M.uescGrey);          // deck floor (z -14..30)
-  addBox(.6, 4, 44, -7.7, WING.deckY+2, 8,  M.uescWhite);        // west wall (full length)
-  addBox(.6, 4, 44,  7.7, WING.deckY+2, 8,  M.uescWhite);        // east wall (full length)
-  addBox(16, 4, .6, 0, WING.deckY+2, -14, M.uescWhite);          // north end wall
-  addBox(17, 1, 12, 0, WING.deckY+5.5, -8, M.uescDark);          // hull canopy over the roof
-  // support pillars for the over-the-road span
-  [6,16,26].forEach(z=>{ [-6,6].forEach(x=> addBox(1.6, WING.deckY-1.2, 1.6, x, (WING.deckY-1.2)/2, z, M.uescDark)); });
-  // stubs where the north end of the hull rests on the Orientation roof
-  [-6,6].forEach(x=> addBox(1.6, 2.4, 1.6, x, OR.roofY+1.2, -6, M.uescDark));
-  // rubble ramp: ground -> deck, delivering into the south entry pocket (z 24..30)
-  for(let i=0;i<24;i++){
-    addBox(5, .5, 2.4, 4, .25+i*.5, 49 - i*.9, M.rust);
-  }
-  // wreckage on the deck (inside the hull)
-  addBox(3,1.5,3, -4, WING.deckY+.75, 12, M.rust, {ry:.4});
-  addBox(2,1,2.5,  3, WING.deckY+.5,  0,  M.rust, {ry:-.3});
+  addBox(5,3,.6, 15.5,1.5,-10, M.uescWhite);
+  addBox(5,3,.6, 15.5,1.5,-5, M.uescWhite);
+  addBox(.6,3,5, 18,1.5,-7.5, M.uescWhite);
+  addBox(.6,3,1.6, 13,1.5,-9.2, M.uescWhite);                  // door gap z -8.4..-6.6
+  addBox(.6,3,1.6, 13,1.5,-5.8, M.uescWhite);
+  addBox(5.6,.4,5.6, 15.5,3.2,-7.5, M.uescGrey);
+  addBox(1.4,2.2,.15, 16.5,1.1,-7.5, M.uescDark, {noCollide:true}); // inner door
+  addBox(.25,2.8,.25, 13.3,1.5,-9.9, M.hazard, {noCollide:true,noShadow:true}); // SEAL tape posts
+  addBox(.25,2.8,.25, 13.3,1.5,-5.1, M.hazard, {noCollide:true,noShadow:true});
+  addBox(.3,6,.3, 17.4,6.2,-9.4, M.uescDark);
+  addBox(3.4,.22,.22, 16.2,9.2,-9.4, M.uescDark, {noCollide:true});
+  addBox(3,.14,.14, 16.2,8.95,-9.4, M.redGlow, {noCollide:true,noShadow:true});
+  const rl = new THREE.PointLight(0xff2331,.9,20); rl.position.set(16.2,9,-9.4); scene.add(rl);
+  // parked ORTN van on the bridge road
+  addBox(2,1.9,4.6, 20,.95,-2.6, M.uescWhite, {ry:.15});
+  addBox(2.06,.5,4.66, 20,.6,-2.6, M.ortn, {noCollide:true,noShadow:true, ry:.15});
 }
 
-// ---- Barrier + indicator lamps (south entrance of the hull) ----
+/* ----  Container yard NW of Orientation (purple 3 on top of the stack)  ---- */
+{
+  addBox(5.2,2.6,2.4, -34.6,1.3,-16.6, M.genBlack);            // black stack, bottom
+  addBox(5.2,2.6,2.4, -34.9,3.9,-16.2, M.genBlack);            // black stack, top (5.2 high)
+  addBox(.7,.5,.7, -33.9,5.45,-16.2, M.uescDark);              // button pedestal
+  addBox(2.4,2.6,5.6, -31,1.3,-21, M.ortn);                    // ORTN teal container (the perch)
+  addBox(2.2,1.2,2.2, -29.1,.6,-19.4, M.contBlu);              // step crate up to the perch
+  addBox(2.4,2.4,6, -37.5,1.2,-13, M.contBlu);
+  addBox(2.4,2.2,5, -36.2,1.1,-20.5, M.contOlv);
+  addFlood(-32,4.5,-15, .6, 16);
+  // junction crate (purple 7) where the west road forks north
+  addBox(2.2,2.2,2.2, -23.6,1.1,-21, M.contRed);
+}
+
+/* =================  NORTH ROAD: ORTN garage (purple 4/5), cliffs, tip (purple 6)  ================= */
+{
+  addBox(6.2,3.4,5, -19.1,1.7,-39.5, M.ortn);                  // teal garage block
+  addBox(.15,2.6,3, -22.33,1.3,-39.5, M.uescWhite, {noCollide:true,noShadow:true}); // roll door
+  addBox(2,1.4,2, -18,4.1,-38.5, M.genBlack);                  // rooftop unit
+  addBox(6.2,.18,.18, -19.1,3.5,-37.02, M.acid, {noCollide:true,noShadow:true});
+  addFlood(-23.6,3.2,-39.5, .7, 15);
+  addBox(2,1.9,4.6, -25.5,.95,-35.4, M.uescWhite, {ry:-.1});   // parked van
+  // cliff wall between the road and the sea (image 3 backdrop)
+  addBox(7,7,14, -11,3.5,-44, M.rock, {ry:.25});
+  addBox(8,9,12, -6,4.5,-52, M.rock, {ry:-.2});
+  addBox(8,10,10, -2,5,-60, M.rock, {ry:.15});
+  addBox(6,5,8, -13,2.5,-30, M.rock, {ry:-.3});
+  addBox(4,3.2,6, -30,1.6,-36, M.rock, {ry:.4});
+  // the tip: overlook platform at the end of the road
+  addPad(14,10, 4,-67);
+  addBox(2,2,2, 5.5,1,-68.6, M.contOlv);                       // purple 6 mounts here
+  addBox(2.2,2.2,2.2, 2.6,1.1,-69, M.contBlu);
+  addBox(.4,8,.4, 8.5,4,-69.5, M.uescDark);                    // antenna mast
+  addBox(2.6,.18,.18, 8.5,7.6,-69.5, M.redGlow, {noCollide:true,noShadow:true});
+  const tl = new THREE.PointLight(0xff2331,.8,18); tl.position.set(8.5,7.7,-69.5); scene.add(tl);
+  addBox(2,1.8,4.4, 9.2,.9,-64.4, M.uescWhite, {ry:-.4});      // wrecked van
+  addFlood(2,4,-66, .7, 18);
+  addBox(10,5,8, -2,2.5,-73, M.rock, {ry:.2});                 // rocks past the tip
+  addBox(12,6,8, 9,3,-72.5, M.rock, {ry:-.15});
+}
+
+/* =================  DESTROYED WING (blue hull crash over a CTRL hall)  =================
+   Ground hall (0) -> mezzanine (+4.2) -> top deck (+8.4, finish zone).
+   green 7 / blue 10 sit OUTSIDE on the upper hull walls; green 8 hangs under
+   the south overhang; blue 11/12 are up in the wreck on the top deck. */
+{
+  addBox(36,.2,18, -10,.1,21, M.pad);                          // hall floor pad
+  // ground walls — big north door x -16..-8, east door z 20..24, south door x -6..-2
+  addBox(12,4.2,.6, -22,2.1,12, M.ctrl);
+  addBox(16,4.2,.6, 0,2.1,12, M.ctrl);                         // green 5 outside this one
+  addBox(.6,4.2,22, -28,2.1,23, M.ctrl);
+  addBox(.6,4.2,8, 8,2.1,16, M.ctrl);
+  addBox(.6,4.2,10, 8,2.1,29, M.ctrl);
+  addBox(22,4.2,.6, -17,2.1,30, M.ctrl);
+  addBox(10,4.2,.6, 3,2.1,30, M.ctrl);
+  // mezzanine slab (north half) + stairs hall->mezz along the west wall
+  addBox(36,.6,8, -10,3.9,16, M.uescGrey);
+  for(let i=0;i<10;i++) addBox(3,.42,.62, -26, .21+i*.42, 28.8-i*.82, M.uescGrey);
+  addBox(3,.42,1.8, -26,3.99,20.9, M.uescGrey);
+  // top deck (hole x -28..-23.5 / z 20..27 for the second stair) + stairs mezz->deck
+  addBox(31.5,.6,12, -7.75,8.1,26, M.uescGrey);
+  addBox(4.5,.6,5, -25.75,8.1,29.5, M.uescGrey);
+  for(let i=0;i<10;i++) addBox(3,.42,.62, -26, 4.41+i*.42, 19.6+i*.82, M.uescGrey);
+  // upper hull shell (deep-blue ship plating)
+  addBox(.6,5.1,16, -28,10.95,26, M.hull);                     // west hull wall (green 7 outside)
+  addBox(.6,7,20, 8,9.5,24, M.hull);                           // east hull wall (blue 10 outside)
+  addBox(36,4.6,.8, -10,10.7,33.6, M.hull);                    // south hull end
+  addBox(16,1,.8, -12,8.9,19.9, M.hull);                       // north lip (snipe gap above)
+  addBox(8,2.6,.8, -24,9.7,19.9, M.hull);
+  addBox(12,2.6,.8, 2,9.7,19.9, M.hull);
+  // mangled wing canopy: blue hull + acid-yellow chunks (visual, high above sightlines)
+  addBox(18,.7,10, -18,13.8,26, M.wreckAcid, {ry:.15, noCollide:true});
+  addBox(14,.6,8, 0,12.6,28, M.hull, {ry:-.2, noCollide:true});
+  addBox(10,.5,6, -8,14.6,22, M.hull, {ry:.3, noCollide:true});
+  addBox(1,4,6, -20,15,30, M.wreckAcid, {ry:.1, noCollide:true});
+  addBox(36,.2,.2, -10,13.15,33.9, M.acid, {noCollide:true,noShadow:true});
+  addBox(.2,.2,16, -28.15,13.6,26, M.acid, {noCollide:true,noShadow:true});
+  addBox(.12,1.6,8, 8.36,10.4,27, M.ctrl, {noCollide:true,noShadow:true}); // white decal band
+  // deck wreckage (blue 11 on the east chunk, blue 12 on the acid chunk)
+  addBox(3.5,2.6,2, -9.5,9.7,25.8, M.hull);
+  addBox(3,2.4,2, -16.9,9.6,25.3, M.wreckAcid);
+  addBox(2,1,3, -3,8.9,29, M.rust, {ry:.5});
+  // red anti-collision beacons up on the wreck (image 2 skyline)
+  [[-6,14.5,26],[4,13.5,32]].forEach(([x,y,z])=>{
+    addBox(.9,.16,.16, x,y,z, M.redGlow, {noCollide:true,noShadow:true});
+    const l = new THREE.PointLight(0xff2331,.8,24); l.position.set(x,y+.2,z); scene.add(l);
+  });
+  // south overhang on pillars — green 8 hangs underneath
+  addBox(24,.8,4, -12,4,32.2, M.hull);
+  addBox(1.2,3.6,1.2, -22,1.8,33, M.uescDark);
+  addBox(1.2,3.6,1.2, -12,1.8,33.4, M.uescDark);
+  addBox(1.2,3.6,1.2, -2,1.8,33, M.uescDark);
+  addBox(.7,.8,.7, -14.4,3.2,31.2, M.genBlack);                // green 8 bracket
+  // burnt hall interior (image 5): sign boards, cargo, fallen wing chunk
+  const board = (x,z,ry,col)=>{
+    addBox(.2,2.6,.2, x,1.3,z, M.uescDark);
+    const b = addBox(2.2,1.4,.12, x,2.1,z, new THREE.MeshBasicMaterial({color:col}), {noCollide:true,noShadow:true});
+    b.rotation.y = ry;
+  };
+  board(-20,16, .2, 0x2334cc); board(-4,18, -.15, 0x7a3fd0); board(-13,26, .1, 0x2334cc);
+  addBox(2.4,2.4,5, 2,1.2,26, M.contBlu);
+  addBox(2.2,2.2,2.2, -24,1.1,14, M.contOlv);
+  addBox(4,1.2,3, -10,.6,22, M.wreckAcid, {ry:.4});
+  addBox(3,1,2, -18,.5,21, M.rust, {ry:-.6});
+  addFlood(-10,7,24, .6, 20);
+  addFlood(-20,3.4,16, .5, 14);
+  const ember = new THREE.PointLight(0xff7733,.55,13); ember.position.set(-8,1,23); scene.add(ember);
+  // rubble at the NE corner (low — you cannot parkour to the deck from here)
+  addBox(4,1.4,4, 11,.7,14, M.rust, {ry:.3});
+  addBox(3,1.2,3, 10.5,1.9,13.5, M.rust, {ry:-.2});
+}
+
+// ---- Barrier + indicator lamps (top of the deck stairs inside the wing) ----
 let barrier;
 let barrierLamps=[];
 {
-  barrier = new THREE.Mesh(new THREE.PlaneGeometry(15, 6),
+  barrier = new THREE.Mesh(new THREE.PlaneGeometry(4.6, 4.2),
     new THREE.MeshBasicMaterial({color:0xff2222, transparent:true, opacity:.35, side:THREE.DoubleSide}));
-  barrier.position.set(0, WING.deckY+3, 24);
+  barrier.position.set(-25.9, WING.deckY+2.1, WING.gate.z);
   scene.add(barrier);
-  addBox(1,7,1, -8, WING.deckY+3.5, 24, M.uescDark);
-  addBox(1,7,1,  8, WING.deckY+3.5, 24, M.uescDark);
-  addBox(17,1,1, 0, WING.deckY+7.5, 24, M.uescDark, {noCollide:true});
+  addBox(.5,4.6,.5, -28.15,WING.deckY+2.3,WING.gate.z, M.uescDark);
+  addBox(.5,4.6,.5, -23.65,WING.deckY+2.3,WING.gate.z, M.uescDark);
+  addBox(5,.4,.4, -25.9,WING.deckY+4.8,WING.gate.z, M.uescDark, {noCollide:true});
 }
-// Rebuild the row of barrier indicator lamps to match the run's target count.
+// Rebuild the row of barrier indicator lamps (on the wing's north lip, visible
+// from the plaza and the Orientation roof) to match the run's target count.
 function buildBarrierLamps(n){
   barrierLamps.forEach(l=>scene.remove(l));
   barrierLamps = [];
-  const span = 14, x0 = -span/2;
+  const span = 14, x0 = -17;
   for(let i=0;i<n;i++){
-    const lm = new THREE.Mesh(new THREE.SphereGeometry(.3,10,10),
+    const lm = new THREE.Mesh(new THREE.SphereGeometry(.28,10,10),
       new THREE.MeshBasicMaterial({color:0xff2a2a}));
-    lm.position.set(x0 + (n>1? i*span/(n-1) : span/2), WING.deckY+8.6, 24);
+    lm.position.set(x0 + (n>1? i*span/(n-1) : span/2), 9.85, 19.3);
     scene.add(lm); barrierLamps.push(lm);
   }
 }
 
-// ---- Lower road + truck (south of Orientation, under the wing deck) ----
-const truckPos = {x:12, z:4};
+/* ----  South plaza kiosk (green 4), south of the B1 stair opening.
+        Freestanding machine pair — the wing-door runline passes both sides. ---- */
 {
-  const road = new THREE.Mesh(new THREE.PlaneGeometry(90,10), M.pad);
-  road.rotation.x=-Math.PI/2; road.position.set(0,.02,4); road.receiveShadow=true;
-  scene.add(road);
+  [[-13.6,0],[-11.4,1]].forEach(([x,i])=>{
+    addBox(1.8,3,1.2, x,1.5,8.3, M.vend);
+    const s = new THREE.Mesh(new THREE.PlaneGeometry(1.3,2.1),
+      new THREE.MeshBasicMaterial({color:i?0x66ccff:0xffaa33}));
+    s.position.set(x,1.55,7.68); s.rotation.y=Math.PI; scene.add(s);
+  });
+  addFlood(-12.5,3.6,7, .7, 14);
+}
+
+/* ----  Southeast yard (green 6 / red 11 containers)  ---- */
+{
+  addBox(2.4,2.4,3.6, 9.9,1.2,25.2, M.contRed);                // red 11 on the east face
+  addBox(2,2,2, 10.05,1.1,26.9, M.contBlu);                    // green 6 on the west face
+  addBox(2.4,2.4,6, 13.4,1.2,28.6, M.contOlv);
+  addFlood(12,4,26, .6, 16);
+}
+
+/* =================  DEPOT east of the wing (red 5-9, truck)  ================= */
+const truckPos = {x:13, z:6.5};
+{
+  addBox(6,4.6,.6, 21,2.3,2, M.ctrl);                          // north wall, west of door
+  addBox(10,4.6,.6, 33,2.3,2, M.ctrl);                         // north wall (red 5 outside)
+  addBox(20,4.6,.6, 28,2.3,17, M.ctrl);                        // south wall (red 7 inside)
+  addBox(.6,4.6,2, 18,2.3,3, M.ctrl);                          // west wall, door z 4..8
+  addBox(.6,4.6,9, 18,2.3,12.5, M.ctrl);                       // west wall (red 9 outside)
+  addBox(.6,4.6,15, 38,2.3,9.5, M.ctrl);                       // east wall (red 6 outside)
+  addBox(20,.5,15, 28,4.85,9.5, M.uescGrey);                   // flat roof
+  addBox(20,.2,.2, 28,5.15,17.12, M.acid, {noCollide:true,noShadow:true});
+  addBox(1,2.2,2.6, 22.2,1.1,12.2, M.genBlack);                // red 8 rack
+  addBox(1,2.2,6, 34,1.1,10, M.genBlack);
+  addBox(2.6,1.2,1.4, 30,.6,6, M.uescDark);
+  addFlood(28,3.9,9, .7, 20);
+  addBox(2.2,1.2,2.2, 14.9,.6,15.4, M.contOlv);                // crate stair -> roof access
+  addBox(2.4,2.4,2.4, 15.6,1.2,13.4, M.contOlv);               // (1.2 -> 2.4 -> 3.8 -> wall 4.6 -> roof)
+  addBox(2.4,1.4,2.4, 16.5,3.1,13.9, M.contBlu);
+  addBox(.3,5,.3, 16,2.5,3, M.uescDark);                       // flood pole on the apron
+  addFlood(16,5.2,3, .95, 24);
   colliders.push(new THREE.Box3(
     new THREE.Vector3(truckPos.x-1.7, 0, truckPos.z-3.2),
     new THREE.Vector3(truckPos.x+1.7, 2.6, truckPos.z+3.2)));
 }
 
-// ---- Trench + Flight Control bridge (west) ----
-const TR = {x:-28};
+/* =================  FAR EAST (red 1-4) + east gate (red 3)  ================= */
 {
-  const tw=8, tl=40;
-  const tfloor = new THREE.Mesh(new THREE.PlaneGeometry(tw+1,tl), M.uescDark);
-  tfloor.rotation.x=-Math.PI/2; tfloor.position.set(TR.x,-3,0); tfloor.receiveShadow=true;
-  scene.add(tfloor); occluders.push(tfloor);
-  addBox(1,3,tl, TR.x-tw/2-.5, -1.5, 0, M.uescGrey);
-  addBox(1,3,tl, TR.x+tw/2+.5, -1.5, 0, M.uescGrey);
-  for(let i=0;i<7;i++){ addBox(tw,.5,1.6, TR.x, -2.75+i*.5, -13 - i*1.3, M.uescGrey); }
-  for(let i=0;i<7;i++){ addBox(tw,.5,1.6, TR.x, -2.75+i*.5,  13 + i*1.3, M.uescGrey); }
-  addBox(6,.8,14, TR.x, 4, 0, M.uescWhite);
-  addBox(.6,2,14, TR.x-3, 5, 0, M.uescGrey, {noCollide:true});
-  addBox(.6,2,14, TR.x+3, 5, 0, M.uescGrey, {noCollide:true});
-  addBox(12,10,12, TR.x-12, 5, 0, M.uescWhite);
+  addBox(5,6,10, 44,3,-2, M.rock, {ry:.3});                    // rocky pass
+  addBox(4,5,8, 47,2.5,14, M.rock, {ry:-.2});
+  addBox(12,5.4,8, 58,2.7,-2, M.ctrl);                         // north block (red 4)
+  addBox(12,.2,.2, 58,5.5,2.12, M.acid, {noCollide:true,noShadow:true});
+  addBox(6,4.6,10, 55,2.3,9, M.ctrl);                          // dorm block (red 2)
+  addBox(1.8,1.8,1.8, 59.4,.9,11.4, M.contRed);                // red 1 crate
+  addBox(2,5,14, 73,2.5,7, M.uescGrey);                        // east gate wall (red 3)
+  addBox(.4,5.6,.4, 73,2.8,-.2, M.hazard);
+  addBox(.4,5.6,.4, 73,2.8,14.2, M.hazard);
+  addBox(2,.2,.2, 73,5.15,7, M.acid, {noCollide:true,noShadow:true});
+  addFlood(60,4.6,5, .8, 22);
+  addBox(3,2.6,2.2, 50,1.3,6, M.contBlu);
 }
 
-// ---- East bridge to Dormitories stub ----
+/* ----  NW mega-structure + map perimeter  ---- */
 {
-  addBox(14,.8,5, 26, 4, -8, M.uescWhite);
-  addBox(12,9,14, 40, 4.5, -8, M.uescGrey);
-  addBox(14,.2,.5, 26, 4.5, -5.8, M.hazard, {noCollide:true, noShadow:true});
-  addBox(14,.2,.5, 26, 4.5, -10.2, M.hazard, {noCollide:true, noShadow:true});
+  addBox(24,12,18, -54,6,-69, M.uescGrey);                     // "G" complex backdrop
+  addBox(20,16,14, -56,8,-51, M.hull);
+  addBox(14,9,10, -47,4.5,-42, M.ctrl);
+  for(let i=0;i<3;i++)
+    addBox(18,.25,.25, -56,4+i*3.4,-43.9, M.acid, {noCollide:true,noShadow:true});
+  addFlood(-48,8,-44, .7, 26);
+  // SW yard backdrop
+  addBox(2.5,2.6,6, -44,1.3,24, M.contRed);
+  addBox(2.5,2.6,6, -41,1.3,26, M.contOlv);
+  addBox(2.5,2.6,6, -42.5,3.9,25, M.contBlu);
+  addBox(10,7,8, -55,3.5,30, M.ctrl);
+  // perimeter walls / rock lines
+  addBox(1.2,6,118, -66,3,-19, M.rock);
+  addBox(144,6,1.2, 5,3,38, M.rock);
+  addBox(1.2,6,53, 78,3,11.5, M.rock);
+  addBox(82,6,1.2, -25,3,-78, M.rock);
 }
 
-// ---- Cargo Bay (Airfield side, southwest) ----
-{
-  const cy = -37;
-  addBox(2.5,2.6,6, -16, 1.3, cy, M.contRed);
-  addBox(2.5,2.6,6, -19, 1.3, cy+1, M.contOlv);
-  addBox(2.5,2.6,6, -17.5, 3.9, cy+.5, M.contBlu);
-  addBox(2.5,2.6,6, -11, 1.3, cy-2, M.contBlu, {ry:.3});
-  // gantry frame
-  addBox(.8,7,.8, -22, 3.5, cy-4, M.uescDark);
-  addBox(.8,7,.8, -9,  3.5, cy-4, M.uescDark);
-  addBox(14,.8,.8, -15.5, 7, cy-4, M.uescDark, {noCollide:true});
-  // landing pad hint toward Airfield
-  const p = new THREE.Mesh(new THREE.CircleGeometry(7, 24), M.pad);
-  p.rotation.x=-Math.PI/2; p.position.set(-16,.03,cy-14); p.receiveShadow=true;
-  scene.add(p);
-}
-
-// ---- Scatter cover ----
-[[-14,12,3],[18,6,2.6],[-8,16,2],[20,-22,2.5],[14,-32,2.2],[26,-26,2]].forEach(([x,z,s])=>{
+// ---- Scatter cover along the roads ----
+[[-40,16,2.4],[12,34,2.2],[-4,-26,2],[24,-10,2.2],[46,4,2],[-38,-6,2]].forEach(([x,z,s])=>{
   addBox(s,s*.8,s, x, s*.4, z, M.uescDark, {ry:x*.2});
 });
