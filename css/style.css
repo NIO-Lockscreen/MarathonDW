@@ -46,3 +46,11 @@
   #guide i{position:absolute;transform:translate(-50%,-78px);width:0;height:0;
            border-left:11px solid transparent;border-right:11px solid transparent;
            border-bottom:18px solid var(--acid);filter:drop-shadow(0 0 4px var(--acid))}
+  /* on-screen target marker (GUIDED): floats directly over the button */
+  #guidemark{position:fixed;left:0;top:0;pointer-events:none;display:none;transform:translate(-50%,-100%);text-align:center}
+  #guidemark b{display:block;font-size:12px;font-weight:bold;color:var(--acid);letter-spacing:1px;text-shadow:0 0 6px #000;margin-bottom:2px}
+  #guidemark i{display:block;width:0;height:0;margin:0 auto;
+               border-left:10px solid transparent;border-right:10px solid transparent;
+               border-top:16px solid var(--acid);filter:drop-shadow(0 0 6px var(--acid));
+               animation:markbob .8s ease-in-out infinite alternate}
+  @keyframes markbob{from{transform:translateY(0)}to{transform:translateY(6px)}}

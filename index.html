@@ -19,6 +19,7 @@
   <div id="best" class="panel">BEST<br><span id="bestval">--:--.--</span></div>
   <div id="cross">+</div>
   <div id="guide"><i></i></div>
+  <div id="guidemark"><b>0m</b><i></i></div>
   <div id="msg"></div>
   <div id="map"><div id="maptitle">TAC MAP</div><canvas id="mapcv" width="540" height="420"></canvas></div>
   <div id="hint" class="panel">WASD / L-STICK move &middot; SHIFT / LT sprint &middot; SPACE / A jump &middot; CLICK / RT shoot &middot; TAB / LB map &middot; R / START restart</div>
@@ -32,7 +33,7 @@
   <p><span class="k">WASD</span> / left stick move &middot; <span class="k">SHIFT</span>/LT sprint &middot; <span class="k">SPACE</span>/A jump &middot; <span class="k">CLICK</span>/RT shoot &middot; <span class="k">TAB</span>/LB map &middot; <span class="k">R</span>/START restart</p>
   <h2 style="margin:18px 0 8px">CHOOSE A MODE TO DEPLOY</h2>
   <div class="modes">
-    <button class="mbtn" id="mode1"><b>1 · GUIDED</b><span>Arrow points to nearest &middot; 5 buttons</span></button>
+    <button class="mbtn" id="mode1"><b>1 · GUIDED</b><span>Marker floats on the nearest button &middot; 5</span></button>
     <button class="mbtn" id="mode2"><b>2 · RECON</b><span>Live targets on the map &middot; 5</span></button>
     <button class="mbtn" id="mode3"><b>3 · BLIND</b><span>No help &middot; 5 buttons</span></button>
     <button class="mbtn" id="mode4"><b>4 · FULL SET</b><span>One whole color set &middot; 8&ndash;12</span></button>
@@ -50,7 +51,7 @@
   <div id="foundlist"></div>
   <h2 style="margin:18px 0 8px">RUN AGAIN &mdash; PICK A MODE</h2>
   <div class="modes">
-    <button class="mbtn" id="emode1"><b>1 · GUIDED</b><span>Arrow to nearest &middot; 5</span></button>
+    <button class="mbtn" id="emode1"><b>1 · GUIDED</b><span>Marker on nearest &middot; 5</span></button>
     <button class="mbtn" id="emode2"><b>2 · RECON</b><span>Targets on map &middot; 5</span></button>
     <button class="mbtn" id="emode3"><b>3 · BLIND</b><span>No help &middot; 5</span></button>
     <button class="mbtn" id="emode4"><b>4 · FULL SET</b><span>One color set &middot; 8&ndash;12</span></button>

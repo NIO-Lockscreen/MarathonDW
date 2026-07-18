@@ -4,7 +4,7 @@
 // set); `arrow` shows the nearest-target HUD pointer; `mapActive` rings the
 // live targets on the TAB map (all 39 documented spawns are always drawn).
 const MODES = {
-  1:{ key:'1', name:'GUIDED',   count:5,  arrow:true,  mapActive:false, blurb:'Arrow points to the nearest button' },
+  1:{ key:'1', name:'GUIDED',   count:5,  arrow:true,  mapActive:false, blurb:'Marker floats on the nearest button' },
   2:{ key:'2', name:'RECON',    count:5,  arrow:false, mapActive:true,  blurb:'Live buttons ringed on the TAB map' },
   3:{ key:'3', name:'BLIND',    count:5,  arrow:false, mapActive:false, blurb:'No help — learn the spawns' },
   4:{ key:'4', name:'FULL SET', set:true, arrow:false, mapActive:true,  blurb:'One whole color set (8-12 buttons)' },
@@ -53,6 +53,7 @@ function startRun(mode){
   document.getElementById('bestval').textContent = bestTime!=null ? fmt(bestTime) : '--:--.--';
   document.getElementById('modetag').textContent = M.name + (currentSetName? ' · '+currentSetName : '');
   document.getElementById('guide').style.display = M.arrow ? 'block':'none';
+  document.getElementById('guidemark').style.display='none';
   barrier.visible=true; barrier2.visible=true;
 
   // deploy on one of the drop zones flanking Orientation — the video notes the
@@ -80,6 +81,7 @@ function endRun(){
   hud.style.display='none';
   mapDiv.style.display='none';
   document.getElementById('guide').style.display='none';
+  document.getElementById('guidemark').style.display='none';
   const prevBest = bestByMode[assistMode];
   const isBest = prevBest==null || t<prevBest;
   document.getElementById('endtitle').textContent = MODES[assistMode].name+' CLEARED';

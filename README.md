@@ -14,7 +14,7 @@ RT shoot, A jump, LT sprint, hold LB for the map).
 
 Pick a mode from the start/end screen, or press `1`–`4` (gamepad: A / X / B / Y):
 
-1. **GUIDED** — 5 buttons; an on-screen arrow points to the nearest one.
+1. **GUIDED** — 5 buttons; a marker floats over the nearest one whenever it is on screen (so you can see which wall it is on); an edge arrow steers you when it is not.
 2. **RECON** — 5 buttons; live targets are ringed on the TAB map.
 3. **BLIND** — 5 buttons; no assistance.
 4. **FULL SET** — one whole color set (8–12 buttons); map assist on.

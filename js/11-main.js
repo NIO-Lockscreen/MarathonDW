@@ -3,23 +3,52 @@
 const GRAV=-24, JUMP=8.6, STEP=.55, CLIMB=4.5;
 
 // ---------- Nearest-target HUD pointer (GUIDED mode) ----------
+// When the nearest button is anywhere on screen, a marker leaves the
+// crosshair and floats directly over the button (with distance) so you can
+// see which wall it is on. Off-screen, the orbit arrow returns — steering in
+// both axes (it also dips when the button is below or behind you).
 const guideEl = document.getElementById('guide');
+const markEl = document.getElementById('guidemark');
+const markDist = markEl ? markEl.querySelector('b') : null;
+const _gv = new THREE.Vector3();
 function updateGuide(){
-  if(!MODES[assistMode].arrow){ guideEl.style.display='none'; return; }
+  if(!MODES[assistMode].arrow){ guideEl.style.display='none'; markEl.style.display='none'; return; }
   let best=null, bd=Infinity;
   for(const s of switches){
     if(s.dead) continue;
     const d = s.group.position.distanceToSquared(player.pos);
     if(d<bd){ bd=d; best=s; }
   }
-  if(!best){ guideEl.style.display='none'; return; }
-  guideEl.style.display='block';
-  const to = best.group.position.clone().sub(player.pos);
-  const fwd = new THREE.Vector3(-Math.sin(player.yaw),0,-Math.cos(player.yaw));
-  const rgt = new THREE.Vector3(-fwd.z,0,fwd.x);
-  // angle where 0 = dead ahead, clockwise positive toward the right
-  const a = Math.atan2(to.dot(rgt), to.dot(fwd));
-  guideEl.style.transform = 'rotate('+a+'rad)';
+  if(!best){ guideEl.style.display='none'; markEl.style.display='none'; return; }
+  camera.updateMatrixWorld();
+  _gv.copy(best.group.position).applyMatrix4(camera.matrixWorldInverse);
+  const inFront = _gv.z < -0.05;
+  let nx=0, ny=0;
+  if(inFront){
+    _gv.copy(best.group.position).project(camera);
+    nx=_gv.x; ny=_gv.y;
+  }
+  if(inFront && Math.abs(nx)<0.93 && Math.abs(ny)<0.9){
+    guideEl.style.display='none';
+    markEl.style.display='block';
+    markEl.style.left = ((nx*.5+.5)*innerWidth)+'px';
+    markEl.style.top  = ((-ny*.5+.5)*innerHeight - 10)+'px';
+    markDist.textContent = Math.round(Math.sqrt(bd))+'m';
+  }else{
+    markEl.style.display='none';
+    let a;
+    if(inFront){
+      a = Math.atan2(nx, ny);           // ahead but off-frame: steer to its edge (incl. up/down)
+    }else{
+      // behind: horizontal turn angle — points sideways/down, never "ahead"
+      const t = best.group.position;
+      const fx = -Math.sin(player.yaw), fz = -Math.cos(player.yaw);
+      const tx = t.x - player.pos.x, tz = t.z - player.pos.z;
+      a = Math.atan2(tx*(-fz) + tz*fx, tx*fx + tz*fz);
+    }
+    guideEl.style.display='block';
+    guideEl.style.transform = 'rotate('+a+'rad)';
+  }
 }
 
 function groundHeightAt(x,z,curY){
@@ -139,8 +168,6 @@ function tick(){
       endRun();
     }
 
-    updateGuide();   // nearest-target HUD pointer (GUIDED mode only)
-
     // head bob + footsteps
     if(moving && player.onGround){
       bobT += dt * (sprinting? 13:9);
@@ -159,6 +186,8 @@ function tick(){
     camera.rotation.set(0,0,0);
     camera.rotateY(player.yaw);
     camera.rotateX(player.pitch);
+
+    updateGuide();   // nearest-target marker/arrow (needs the fresh camera pose)
 
     // viewmodel recoil + sway
     if(viewmodel){
