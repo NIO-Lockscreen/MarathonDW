@@ -1,14 +1,17 @@
 # SWITCH HUNT // DESTROYED WING
 
-A fan-made three.js speedrun trainer for the Orientation quadrant of Outpost.
-The map and every button position are rebuilt from the community button-spawn
-guide ([video](https://www.youtube.com/watch?v=eQ-SGF6M2L8)) and in-game
-captures: all **39 documented button spawns** are here, in their four color
-sets, at their four height levels. Shoot the run's buttons, drop the barrier
-at the top of the Destroyed Wing's stairs, and set foot on the wreck's top
-deck to stop the clock.
-Playable with keyboard + mouse or a gamepad (left stick move, right stick look,
-RT shoot, A jump, LT sprint, hold LB for the map).
+A fan-made three.js speedrun trainer for the Destroyed Wing complex of
+Outpost. The arena is rebuilt from the player's from-memory reference model
+(a layer-by-layer 3D build over the in-game map): every wall, floor,
+doorway, ladder and debris crate sits at the model's coordinates, and the
+model's 29 placed buttons spawn exactly where they were marked. Where the
+model left gaps, the community 40-button guide fills them in — the four B1
+basement buttons and the east red-zone annex — for **40 documented spawns**
+in four color sets at four height levels. Shoot the run's buttons, drop the
+barriers, climb to the wing tip, and set foot in the tip room to stop the
+clock.
+Playable with keyboard + mouse or a gamepad (left stick move, right stick
+look, RT shoot, A jump, LT sprint, hold LB for the map).
 
 ## Modes (chosen before each run)
 
@@ -20,139 +23,128 @@ Pick a mode from the start/end screen, or press `1`–`4` (gamepad: A / X / B / 
 4. **FULL SET** — one whole color set (8–12 buttons); map assist on.
 
 `R` (gamepad START) restarts the last mode. Best times are tracked per mode.
-The TAB map is the placement guide: all 39 numbered spawns are always drawn,
+The TAB map is the placement guide: all 40 numbered spawns are always drawn,
 north-up, in their set colors.
 
-## The map (north-up, like the TAB map)
+## The arena (north-up, straight from the model)
 
-- **ORIENTATION** — the central two-floor CTRL building. Lobby stairs reach
-  the second floor; a **ladder on the west face** climbs to the roof. From the
-  roof, a **collapsed walkway** crosses to the Destroyed Wing's sealed north
-  door — the community-documented entry route ("climb to the roof of
-  Orientation, then up the destroyed building to the red-barrier doors").
-- **DESTROYED WING** — south of Orientation: a CTRL ground hall with the
-  crashed blue hull on top. Two gated ways onto the **top deck** (the finish
-  zone): the roof walkway to the north door, or interior stairs
-  hall → mezzanine → deck. The barrier lamps above the north door show the
-  grid state. A hull section juts south over a service yard on pillars.
-- **B1 rooms** — two below-ground rooms: under the huts west of the map
-  (stairs inside the small stair hut) and under the plaza southwest of
-  Orientation (open stairwell + a drop-in ceiling hatch).
-- **North road** — runs from the junction NW of Orientation past the teal
-  ORTN garage (cliffs on the sea side) to the overlook tip.
-- **East** — the sealed white hut with the red light-bar antenna, the bridge
-  road to the **depot** (enterable), and the far-east blocks ending at the
-  east gate wall. The **sea** fills the northeast.
+Five layers, exactly like the reference build:
 
-## Button placement guide (39 spawns, 4 sets, 4 heights)
+- **Ground (y0)** — the open undercroft under the deck (pillared, with the
+  covered alley along its south edge), the **west quarters** (enterable
+  ground room: doors on the west + south faces), the south plaza, and the
+  north grounds. Two **B1 rooms** are dug below: under the west quarters
+  (reached by the NW hatch shaft) and under the plaza (open stairwell + a
+  grated drop hatch).
+- **The deck (y3)** — a raised slab over the whole midfield. On it: the
+  two-story **hall** (north door, twin south doors, store rooms), the
+  **walkway booth**, and the north **walkway** running out over the grounds
+  to the end stairs and the angled sign panel.
+- **y6** — the hall's upper story, the **overlook pod** cantilevered south
+  over the alley, and the second story of the **tilted hull corridor** — the
+  crashed wing body leaning 15° across the deck's east end, its two stories
+  linked by doors, a bridge, and an interior ladder under a blown-open hatch.
+- **The roofs (y9)** — hall roof + corridor roof, strewn with blue debris
+  chunks (several carry buttons). Ladders: the hall's east-fin ladder and
+  the corridor's outer ladder.
+- **The wing tip (y12)** — the platform on hull legs over the south plaza,
+  with the walled **tip room** at its south end: the finish. Two red barrier
+  fields seal it until the grid clears — one across the platform's north
+  edge above the pod ladder, one in the tip-room doorway (the lamp row above
+  the door shows the grid).
 
-Heights: **B1** below ground · **L1** ground level · **2F** second floor /
-elevated · **TOP** rooftops & up on the Destroyed Wing.
+East of the deck sits the red-zone annex: the two-story **sealed hut**, the
+buried **hull fin** leaning at 45°, the **depot** (enterable — interior loft
+stairs + medical section), the dorm block, and the east gate wall.
 
-The four color sets are the guide's four pathing zones (the video frames them
-as an efficient route, and notes the in-game map is only approximate for
-pinpointing [04:32] — treat the dots as ±a few meters):
+## Button placement guide (40 spawns, 4 sets, 4 heights)
 
-- **PURPLE — hangar / aircraft drop-down** [07:39]: the below-ground room by
-  the two airfield hangars (buttons on its interior walls, drop in through the
-  hatch by the parked dropship or take the stair hut), plus the garage
-  exterior on the north road and the tip.
-- **GREEN — red-key-card vantage** [03:40]: dense around Orientation's faces —
-  from the red key card spawn on the plaza you can eyeball several at once —
-  plus the wall vent in the plaza B1 rooms [06:32] and the underside of the
-  wing's south walkway span [06:21].
-- **RED — small-building walls & interiors** [14:11]: the sealed hut, the
-  depot (medical section on the south wall [16:40], one hidden under the
-  interior staircase [15:52]) and the far-east blocks.
-- **BLUE — the middle, ladders & roof** [18:26]: Orientation's stairwell
-  floors, the locked room in the middle section [18:40], the roof (AC unit +
-  generator) [19:58], and the Destroyed Wing top.
+Heights: **B1** below ground · **L1** ground level · **2F** deck stories ·
+**TOP** roofs & the wing tip. Buttons marked *(guide fill)* are the eleven
+added around the model's 29.
 
-Runs deploy on either side of Orientation — the buttons sit around the player
-spawn areas on both sides [05:51].
-
-### PURPLE set (8)
+### PURPLE set (8) — the west quarters column
 
 | # | Level | Where |
 |---|-------|-------|
-| 1 | B1 | Hangar drop-down room — west wall |
-| 2 | B1 | Hangar drop-down room — north wall |
-| 3 | 2F | On top of the black container stack NW of Orientation (shoot it from the teal ORTN container) |
-| 4 | L1 | ORTN garage on the north road — road-side (west) wall |
-| 5 | L1 | ORTN garage — north corner |
-| 6 | L1 | North tip overlook — crate by the antenna |
-| 7 | L1 | Road junction NW of Orientation — red crate |
-| 8 | L1 | Orientation — north wall, outside by the door |
+| 1 | B1 | B1 west room — west wall *(guide fill)* |
+| 2 | B1 | B1 west room — north wall *(guide fill)* |
+| 3 | L1 | West quarters — inside, north wall |
+| 4 | L1 | West quarters — inside, east wall |
+| 5 | 2F | Walkway booth — west face |
+| 6 | 2F | Walkway booth — east face |
+| 7 | TOP | Roof deck — debris chunk, west face |
+| 8 | TOP | Roof deck — debris chunk at the SW corner |
 
-### BLUE set (12)
-
-| # | Level | Where |
-|---|-------|-------|
-| 1 | L1 | Orientation ground floor — west pillar, south face |
-| 2 | L1 | Orientation ground floor — west pillar, east face |
-| 3 | L1 | Orientation ground floor — console by the west rooms |
-| 4 | L1 | Orientation ground floor — inside the south wall |
-| 5 | 2F | Orientation second floor — locked-room wall, middle section |
-| 6 | L1 | Orientation ground floor — southeast corner, inside |
-| 7 | 2F | Orientation second floor — sill under the south windows |
-| 8 | TOP | Orientation roof — AC unit |
-| 9 | TOP | Orientation roof — generator facing the wing |
-| 10 | TOP | Destroyed Wing — east hull wall, upper level, outside |
-| 11 | TOP | Destroyed Wing — top deck, blue hull chunk |
-| 12 | TOP | Destroyed Wing — top deck, acid wing chunk |
-
-### GREEN set (8)
+### GREEN set (8) — plaza + vantage
 
 | # | Level | Where |
 |---|-------|-------|
-| 1 | L1 | Orientation — west wall, outside |
-| 2 | B1 | Plaza rooms — inside the wall vent |
-| 3 | B1 | Plaza rooms — center pillar |
-| 4 | L1 | South plaza — NuCaloric kiosk |
-| 5 | L1 | Destroyed Wing — north wall by the east corner |
-| 6 | L1 | Southeast yard — blue crate, west face |
-| 7 | TOP | Destroyed Wing — west hull wall, upper level, outside |
-| 8 | L1 | Destroyed Wing — underside of the south walkway span (shoot it from the yard) |
+| 1 | 2F | Walkway sign panel — back face |
+| 2 | B1 | B1 plaza rooms — inside the wall vent *(guide fill)* |
+| 3 | B1 | B1 plaza rooms — center pillar *(guide fill)* |
+| 4 | L1 | Covered alley — inner wall |
+| 5 | L1 | Covered alley — east wall |
+| 6 | 2F | Hall south face — over the porch |
+| 7 | TOP | Roof deck — debris chunk, north face |
+| 8 | TOP | Wing tip — west wall, outside |
 
-### RED set (11)
+### BLUE set (12) — the middle: ladders, roofs, the tip
 
 | # | Level | Where |
 |---|-------|-------|
-| 1 | L1 | Far east — crate by the dorm block |
-| 2 | L1 | Far east — dorm block east wall, high |
-| 3 | L1 | East gate wall — west face |
-| 4 | L1 | Far east — north block, sea side |
-| 5 | L1 | Depot — north wall, outside |
-| 6 | L1 | Depot — east wall, outside |
-| 7 | L1 | Depot — medical section, south wall |
-| 8 | L1 | Depot — under the interior staircase |
-| 9 | L1 | Depot — outside the west door |
-| 10 | L1 | Sealed hut NE of Orientation — west face |
-| 11 | L1 | Southeast yard — red container, east face |
+| 1 | 2F | Hall — east block, deck story |
+| 2 | 2F | Hall — east block, upper story |
+| 3 | 2F | Ladder-column fin — west face |
+| 4 | 2F | Ladder-column fin — east face |
+| 5 | 2F | Hall upper story — south wall, inside |
+| 6 | TOP | Roof deck — debris chunk by the ladder top |
+| 7 | TOP | Wing roof — debris chunk, east face |
+| 8 | TOP | Under the tip platform — south face |
+| 9 | TOP | Under the tip platform — north face |
+| 10 | TOP | Wing tip — north wall, high west |
+| 11 | TOP | Wing tip — north wall, east |
+| 12 | TOP | Wing tip — east wall, outside |
 
-Note the sightline spawns: **blue 11/12** sit behind the barriers on the wing's
-top deck — snipe them through the gap over the wing's north lip from the
-Orientation roof or the walkway door, or from the top of the deck stairs
-through the barrier.
-**Green 7 / blue 10** are high on the wing's outer hull walls; **green 8**
-hangs under the south overhang.
+### RED set (12) — interiors + the east annex
+
+| # | Level | Where |
+|---|-------|-------|
+| 1 | 2F | Hall store room — west wall |
+| 2 | 2F | South face — medical wall, deck story |
+| 3 | 2F | South face — medical wall, upper story (inside the pod) |
+| 4 | 2F | Sealed hut — upper story, west face |
+| 5 | 2F | Crashed hull fin — southeast face |
+| 6 | L1 | Depot — north wall, outside *(guide fill)* |
+| 7 | L1 | Depot — medical section, south wall *(guide fill)* |
+| 8 | L1 | Depot — under the loft stairs *(guide fill)* |
+| 9 | L1 | Depot — outside the west door *(guide fill)* |
+| 10 | L1 | Far east — crate by the dorm block *(guide fill)* |
+| 11 | L1 | Far east — dorm block east wall, high *(guide fill)* |
+| 12 | L1 | East gate wall — west face *(guide fill)* |
+
+Sightline notes: **blue 10/11** are on the tip room's outer north face —
+snipe them from the roofs or the deck; **blue 12** (east face) from the
+depot yard; **green 8** (west face) from the plaza or the west deck;
+**blue 8/9** are a through-pair on the wall under the tip platform — one
+face from the pod roof, the other from under the platform.
 
 ## Getting around
 
-Interior lobby stairs reach Orientation's second floor; the **ladder** on its
-west face climbs to the roof. Into the wing: roof → collapsed walkway →
-north barrier door → top deck, or hall → west stairs → mezzanine → second
-stairs → barrier → top deck. Depot roof is reachable off the crate stack by
-its west door. B1 stairs: inside the west stair hut, and the open stairwell
-on the plaza (mind the open ceiling hatch).
+Ladders (all from the model): the **NW shaft ladder** runs B1 → ground room
+→ deck; the **hall east-fin ladder** climbs deck → hall roof; the hull
+corridor has an **interior ladder** (story 1 → 2, under the blown hatch)
+and an **outer ladder** to its roof; the **pod ladder** reaches the tip
+platform (gated until the grid clears). The north **walkway stairs** drop
+to the north grounds; the plaza **B1 stairwell** descends by the kiosks;
+crate steps reach the deck's SE corner and the depot roof.
 
 Open `index.html` in a browser (a static server is fine: `python3 -m http.server`).
 
 ## Source layout ("vibe-optimized" pieces)
 
-The game was one 4,500-line file; it is now split so each concern is small and
-editable on its own. Files load in order as plain classic `<script>`s that share
-one global scope (no build step, no modules), so declaration order matters.
+Files load in order as plain classic `<script>`s sharing one global scope
+(no build step, no modules), so declaration order matters.
 
 | File | Responsibility |
 |------|----------------|
@@ -162,23 +154,26 @@ one global scope (no build step, no modules), so declaration order matters.
 | `assets/models.js` | Embedded CC0 Kenney GLB models (base64 data URIs) |
 | `js/00-core.js` | Renderer, scene, camera, night sky, moonlight |
 | `js/01-materials.js` | Canvas textures (CTRL panels, blue hull), materials, `addBox()` |
-| `js/02-layout.js` | **World geometry** — Orientation, wing, B1 rooms, roads, sea |
-| `js/03-spawns.js` | The 39-location button pool (4 color sets) + `spawnSwitches()` |
+| `js/02-layout.js` | **World geometry** — imported from the reference GLB model |
+| `js/03-spawns.js` | The 40-location button pool (4 color sets) + `spawnSwitches()` |
 | `js/04-assets.js` | GLB loading (truck, drones, blaster viewmodel) |
 | `js/05-input.js` | Keyboard / mouse / pointer-lock, player object |
 | `js/06-audio.js` | WebAudio `beep()` synth |
-| `js/07-map.js` | TAB map — the guide map with all 39 numbered spawns |
+| `js/07-map.js` | TAB map — the guide map with all 40 numbered spawns |
 | `js/08-combat.js` | Shooting, raycast, button destruction, particles |
 | `js/09-game.js` | Run state, timer, start / end flow |
-| `js/10-gamepad.js` | Gamepad polling (Standard mapping): move / look / shoot / jump / sprint / map / deploy |
-| `js/11-main.js` | Physics (incl. B1 pits), collision, and the animation loop |
+| `js/10-gamepad.js` | Gamepad polling (Standard mapping) |
+| `js/11-main.js` | Physics (incl. B1 pits + ladders), collision, the animation loop |
 
 To change the map, edit `js/02-layout.js` (geometry) and `js/03-spawns.js`
-(button positions). `OR` (Orientation), `WING` (deck/gate/finish), `PITS`
-(B1 rooms) and `SEA` are the shared anchors the spawn pool, map and physics
-reference.
+(button positions). `LV` (layer heights), `WING` (gates/finish), `PITS`
+(B1 rooms) and `DEPOT` are the shared anchors the spawn pool, map and
+physics reference. The reference model's raw geometry (positions, sizes,
+rotations, button/door/ladder markers) was extracted from the GLB export
+and converted piece by piece; spawns are tagged `[model]` / `[guide]` in
+`js/03-spawns.js`.
 
 ---
-FAN-MADE TRAINER · LAYOUT + 39 SPAWNS REBUILT FROM THE COMMUNITY GUIDE
-(youtube.com/watch?v=eQ-SGF6M2L8) AND IN-GAME CAPTURES ·
-MODELS: KENNEY.NL (CC0) · three.js (MIT) · NOT AFFILIATED WITH BUNGIE
+FAN-MADE TRAINER · ARENA REBUILT FROM THE PLAYER'S REFERENCE MODEL +
+THE COMMUNITY BUTTON GUIDE · MODELS: KENNEY.NL (CC0) · three.js (MIT) ·
+NOT AFFILIATED WITH BUNGIE

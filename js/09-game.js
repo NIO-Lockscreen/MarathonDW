@@ -56,9 +56,9 @@ function startRun(mode){
   document.getElementById('guidemark').style.display='none';
   barrier.visible=true; barrier2.visible=true;
 
-  // deploy on one of the drop zones flanking Orientation — the video notes the
-  // buttons sit around the player spawn areas on both sides of the building
-  const D = [{x:-6,z:7,yaw:Math.PI}, {x:-20,z:-22,yaw:-2.4}][(Math.random()*2)|0];
+  // deploy on one of the drop zones flanking the complex — NW ground by the
+  // walkway stairs, or the south plaza (the guide's two spawn sides)
+  const D = [{x:-30,z:-14,yaw:-2.35}, {x:-4,z:24,yaw:.3}][(Math.random()*2)|0];
   player.pos.set(D.x,0,D.z); player.vel.set(0,0,0);
   player.yaw=D.yaw; player.pitch=0;
   particles.forEach(p=>scene.remove(p)); particles=[];

@@ -1,8 +1,8 @@
 'use strict';
 // ---------- Map overlay ----------
-// Guide-style tac map: north-up, navy ground, sea to the NE, and ALL 39
-// documented button spawns drawn as numbered colored dots (like the community
-// guide). Modes with map assist additionally ring the run's live targets.
+// Guide-style tac map of the rebuilt arena: north-up, all 40 button spawns
+// drawn as numbered colored dots. Modes with map assist additionally ring the
+// run's live targets.
 const mapDiv = document.getElementById('map');
 const mapcv = document.getElementById('mapcv');
 const MAPW = 540, MAPH = 420;
@@ -11,12 +11,12 @@ function showMap(on){
   mapDiv.style.display = on? 'block':'none';
   if(on){
     document.getElementById('maptitle').textContent =
-      MODES[assistMode].mapActive ? 'TAC MAP // LIVE TARGETS RINGED' : 'TAC MAP // ALL 39 SPAWNS';
+      MODES[assistMode].mapActive ? 'TAC MAP // LIVE TARGETS RINGED' : 'TAC MAP // ALL 40 SPAWNS';
     drawMap();
   }
 }
-// world -> map px. Window: x -70..80, z -78..38 (north = -z = up)
-function w2m(x,z){ return [ (x+70)*MAPW/150, (z+78)*MAPH/116 ]; }
+// world -> map px. Window: x -52..38, z -29..32 (north = -z = up)
+function w2m(x,z){ return [ (x+52)*MAPW/90, (z+29)*MAPH/61 ]; }
 
 function drawMap(){
   const g = mapcv.getContext('2d');
@@ -35,64 +35,67 @@ function drawMap(){
     g.restore();
     if(label){ g.fillStyle='#9fb3cf'; g.font='9px monospace'; g.fillText(label, ax+3, ay+11); }
   }
+  // rotated box footprint (the hull corridor / fin / sign): world center,
+  // length, width, yaw -> filled polygon
+  function rotRect(cx,cz,len,wid,yaw, fill, stroke){
+    const dx=Math.sin(yaw), dz=Math.cos(yaw), lx=Math.cos(yaw), lz=-Math.sin(yaw);
+    const c=[[ 1, 1],[ 1,-1],[-1,-1],[-1, 1]].map(([a,b])=>
+      w2m(cx + dx*a*len/2 + lx*b*wid/2, cz + dz*a*len/2 + lz*b*wid/2));
+    g.beginPath(); g.moveTo(c[0][0],c[0][1]);
+    for(let i=1;i<4;i++) g.lineTo(c[i][0],c[i][1]);
+    g.closePath();
+    if(fill){ g.fillStyle=fill; g.fill(); }
+    if(stroke){ g.strokeStyle=stroke; g.lineWidth=1.3; g.stroke(); }
+  }
 
-  // sea + shoreline contours (NE)
-  rect(16,-78,80,-14, '#070d17', null);
-  g.strokeStyle='#2c4a66'; g.lineWidth=1.4;
-  [0,7].forEach(off=>{
-    const [ax,ay]=w2m(16+off,-78), [bx,by]=w2m(16+off,-14-off*.6);
-    g.beginPath(); g.moveTo(ax,ay);
-    g.bezierCurveTo(ax+26,ay+90, ax-14,by-120, ax+40,by);
-    const [cx2]=w2m(80,-14-off);
-    g.lineTo(cx2,by); g.stroke();
-  });
-
-  // roads
+  // ground roads
   const road='rgba(46,62,88,.9)';
-  rect(-34,2,14,10, road);            // south plaza
-  rect(-46,-8,-38,14, road);          // southwest approach
-  rect(-36,-24,-24,-6, road);         // junction
-  rect(-26.5,-46,-19.5,-24, road);    // north road lower
-  rect(-22,-64,4,-46, road);          // north road upper (approx)
-  rect(-3,-72,11,-62, road);          // tip pad
-  rect(10,-1,50,7, road);             // east bridge road
-  rect(50,3,72,11, road);             // far-east pass
-  rect(4,10,20,30, road);             // southeast yard
+  rect(-25,16,5,26, road);            // south plaza road
+  rect(-34,-24,-26,-4, road);         // NW approach
+  rect(9,-2,19,14, road);             // east yard
+  rect(21,-4,33,2, road);             // depot apron
 
   // B1 rooms (below ground) — dashed green
-  rect(-61,-29,-47,-15, 'rgba(30,52,40,.55)', '#4d8a62', 'B1', true);
-  rect(-35,-1,-15,11,  'rgba(30,52,40,.55)', '#4d8a62', 'B1', true);
+  rect(-34.2,3,-25.8,11, 'rgba(30,52,40,.55)', '#4d8a62', 'B1', true);
+  rect(-32,19,-18,27,   'rgba(30,52,40,.55)', '#4d8a62', 'B1', true);
 
-  // structures
+  // the deck (y3 slab) — pale field with the undercroft open beneath
+  rect(-37.2,-6.4,9.2,14.4, 'rgba(120,138,160,.35)', '#66788e', 'DECK');
+  // north walkway + end stairs + sign
+  rect(-25.8,-20,-20.2,-4, 'rgba(120,150,210,.8)', null, 'WALKWAY');
+  rect(-25.8,-24.8,-20.2,-20, 'rgba(90,110,150,.7)', null);
+  rotRect(-21,-19, 5.2,.9, -Math.PI/6, '#2fd8c4', null);
+  // walkway booth
+  rect(-26.8,-9,-25.2,-5, 'rgba(190,205,224,.85)', '#8fa3bd');
+
+  // structures on / around the deck
   const bld='rgba(190,205,224,.82)', bs='#8fa3bd', dark='rgba(70,84,102,.9)';
-  rect(-66,-78,-42,-38, dark, '#55657c', 'G');            // NW mega-structure
-  rect(-60,-19.5,-57,-16.5, bld, bs);                     // west huts
-  rect(-57.8,-27,-54.2,-24, bld, bs);
-  rect(-54.5,-25,-46.5,-18, bld, bs);
-  rect(-37.2,-17.8,-32.3,-15.4, dark, '#55657c');         // container stack (purple 3)
-  rect(-22.2,-42,-16,-37, 'rgba(31,179,163,.8)', '#2fd8c4'); // ORTN garage
-  rect(OR.x0,OR.z0,OR.x1,OR.z1, bld, bs, 'ORIENTATION 2F');
-  rect(13,-10,18,-5, bld, bs);                            // sealed hut
-  rect(-15.5,3.9,-11.3,6.3, dark, '#55657c');             // kiosk
+  rect(-34.2,3,-25.8,11, bld, bs);                        // west quarters (ground story)
+  rect(-26,.8,-4,9.2, bld, bs, 'HALL');                   // the two-story hall
+  rect(-22,4,-18,8, dark, '#55657c');                     // store room
+  rect(-12,8.6,-8,13.4, 'rgba(70,110,205,.72)', '#7fa6ff'); // overlook pod
+  rect(-14.4,9,-5.6,11, dark, null);                      // covered alley
+  rect(-37.8,15.8,-.2,16.2, dark, null);                  // plaza boundary wall
+  // the tilted hull corridor (the crashed wing body)
+  rotRect(4,4, 16.4,4.2, -Math.PI/12, 'rgba(70,110,205,.72)', '#7fa6ff');
+  // wing tip platform + room (the finish) — acid dash
+  rect(-15,9.2,-7,31.2, 'rgba(70,110,205,.55)', '#7fa6ff', 'WING TIP');
+  rect(-15,23,-7,31.2, null, '#c8ff00', null, true);
+  // east annex
+  rect(14,-7,18,-3, bld, bs);                             // sealed hut
+  rotRect(16,-13, 10.4,.9, -Math.PI/4, 'rgba(70,110,205,.8)', null); // hull fin
   rect(DEPOT.x0,DEPOT.z0,DEPOT.x1,DEPOT.z1, bld, bs, 'DEPOT');
-  rect(52,-6,64,2, bld, bs);                              // far-east blocks
-  rect(52,4,58,14, bld, bs);
-  rect(72,0,74,14, dark, '#55657c');                      // east gate wall
-  rect(-60,26,-50,34, bld, bs);                           // SW yard
-  rect(-45.5,21,-39.5,29, dark, '#55657c');
-  rect(8.5,23.2,14.8,31.8, dark, '#55657c');              // SE containers
+  rect(26,-9,34,-4, bld, bs);                             // dorm block
+  rect(34.7,-1,36.1,13, dark, '#55657c');                 // east gate wall
+  rect(-9.3,19.9,-5.3,21.3, dark, '#55657c');             // kiosk pair
 
-  // Destroyed Wing — blue-highlighted like the guide; acid dash = top deck
-  rect(WING.x0,WING.z0,WING.x1,WING.z1, 'rgba(70,110,205,.72)', '#7fa6ff', 'DESTROYED WING');
-  rect(-28,20,8,32, null, '#c8ff00', null, true);
-  rect(-8.9,2,-7.1,19.5, 'rgba(120,150,210,.85)', null);  // roof walkway to the north door
   WING.gates.forEach(GT=>{ // barrier gate markers
     const [ax,ay]=w2m(GT.x0, (GT.z0+GT.z1)/2), [bx]=w2m(GT.x1, (GT.z0+GT.z1)/2);
     g.strokeStyle='#ff5a5a'; g.lineWidth=2;
     g.beginPath(); g.moveTo(ax,ay); g.lineTo(bx,ay); g.stroke();
   });
 
-  // all 39 documented spawns — numbered colored dots (the placement guide)
+  // all 40 documented spawns — numbered colored dots (the placement guide)
   const t = performance.now();
   SPAWNS.forEach((s,i)=>{
     const [x,y]=w2m(s.p[0], s.p[2]);
@@ -111,10 +114,11 @@ function drawMap(){
     g.fillText(s.num, x+6, y-3);
   });
 
-  // legend + compass
+  // legend (counts computed from the pool) + compass
   g.font='bold 10px monospace';
   let lx=10;
-  [['PURPLE',8],['BLUE',12],['GREEN',8],['RED',11]].forEach(([nm,n])=>{
+  Object.keys(SETCOL).forEach(nm=>{
+    const n = SPAWNS.filter(s=>s.set===nm).length;
     g.fillStyle=SETCOL[nm];
     g.beginPath(); g.arc(lx+4, MAPH-12, 4, 0, 7); g.fill();
     g.fillText(nm+' '+n, lx+11, MAPH-8);

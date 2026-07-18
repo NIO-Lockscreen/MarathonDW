@@ -208,10 +208,10 @@ function tick(){
   }});
   if(barrier.visible) barrier.material.opacity = .28+.12*Math.sin(now*.004); // barrier2 shares the material
 
-  // drones patrol (orbits centered off the coast, over the sea)
+  // drones patrol (orbits centered beyond the north rim)
   drones.forEach(d=>{
     d.a += d.s*dt;
-    d.o.position.set(18+Math.sin(d.a)*d.r, d.h + Math.sin(now*.001+d.r)*0.8, -26+Math.cos(d.a)*d.r);
+    d.o.position.set(-6+Math.sin(d.a)*d.r, d.h + Math.sin(now*.001+d.r)*0.8, -40+Math.cos(d.a)*d.r);
     d.o.rotation.y = -d.a;
     d.l.intensity = .5 + .5*Math.sin(now*.008+d.r);
   });

@@ -1,56 +1,65 @@
 'use strict';
-/* ============ BUTTON SPAWN POOL (39 documented locations) ============
-   The four color sets from the community guide map — PURPLE (8), BLUE (12),
-   GREEN (8), RED (11) — at their mapped positions, spread over the four
-   height levels: B1 basement, L1 ground, 2F second floor / elevated,
-   TOP Destroyed Wing upper walls & deck.
+/* ============ BUTTON SPAWN POOL (40 locations) ============
+   29 buttons sit exactly where the player placed them in the reference model
+   (MyGameMap.glb — marked [model]); 11 more are filled in from the community
+   button guide (marked [guide]): the four B1 basement buttons and the east
+   red-zone annex. Four color sets over four height levels:
+     PURPLE 8 — the west quarters column: B1 room, ground interior, the
+                walkway booth, the west roof chunks
+     GREEN  8 — plaza + vantage: B1 plaza rooms, the covered alley, south
+                faces, the walkway sign, the wing tip's west wall
+     BLUE  12 — the middle: hall east block, the ladder-column fin, roof
+                chunks, under-platform pair, the wing-tip walls
+     RED   12 — interiors + the east annex: store room, medical walls, the
+                sealed hut, the hull fin, depot + far east
    `p` sits ~0.35m proud of its mount so the red face is visible; `n` is the
-   outward normal. Modes draw 5/10 at random, or one whole color set. */
+   outward normal. Modes draw 5 at random, or one whole color set. */
 const SETCOL = { PURPLE:'#c85fd6', BLUE:'#38b6f0', GREEN:'#41c95e', RED:'#e8483f' };
 const SPAWNS = [
-  // --- PURPLE set (8) — west + north of Orientation ---
-  {set:'PURPLE', num:1,  lv:'B1',  p:[-60.35,-2.5,-20],   n:[ 1,0,0], label:'B1 hangar drop-down room — west wall'},
-  {set:'PURPLE', num:2,  lv:'B1',  p:[-54.2,-2.5,-28.35], n:[ 0,0,1], label:'B1 hangar drop-down room — north wall'},
-  {set:'PURPLE', num:3,  lv:'2F',  p:[-33.9,6.2,-16.2],   n:[.5,0,-1], label:'on top of the container stack NW of Orientation'},
-  {set:'PURPLE', num:4,  lv:'L1',  p:[-22.55,1.6,-38.3],  n:[-1,0,0], label:'ORTN garage on the north road — road-side wall'},
-  {set:'PURPLE', num:5,  lv:'L1',  p:[-21.6,1.9,-42.35],  n:[0,0,-1], label:'ORTN garage on the north road — north corner'},
-  {set:'PURPLE', num:6,  lv:'L1',  p:[5.5,1.5,-67.25],    n:[ 0,0,1], label:'north tip overlook — crate by the antenna'},
-  {set:'PURPLE', num:7,  lv:'L1',  p:[-22.15,1.4,-21],    n:[ 1,0,0], label:'road junction NW of Orientation — red crate'},
-  {set:'PURPLE', num:8,  lv:'L1',  p:[-6.6,2.2,-18.65],   n:[0,0,-1], label:'Orientation — north wall, outside by the door'},
-  // --- BLUE set (12) — Orientation interior + Destroyed Wing top ---
-  {set:'BLUE', num:1,  lv:'L1',  p:[-25.2,1.7,-12.6],  n:[ 0,0,1], label:'Orientation GF — west pillar, south face'},
-  {set:'BLUE', num:2,  lv:'L1',  p:[-24.2,1.7,-8.9],   n:[ 1,0,0], label:'Orientation GF — west pillar, east face'},
-  {set:'BLUE', num:3,  lv:'L1',  p:[-19,1.0,-7.65],    n:[ 0,0,1], label:'Orientation GF — console by the west rooms'},
-  {set:'BLUE', num:4,  lv:'L1',  p:[-18.7,1.7,1.35],   n:[0,0,-1], label:'Orientation GF — inside the south wall'},
-  {set:'BLUE', num:5,  lv:'2F',  p:[-5.2,5.9,-7.15],   n:[ 0,0,1], label:'Orientation 2F — locked-room wall, middle section'},
-  {set:'BLUE', num:6,  lv:'L1',  p:[9.35,1.7,-0.8],    n:[-1,0,0], label:'Orientation GF — southeast corner, inside'},
-  {set:'BLUE', num:7,  lv:'2F',  p:[2.3,5.15,1.35],    n:[0,0,-1], label:'Orientation 2F — sill under the south windows'},
-  {set:'BLUE', num:8,  lv:'TOP', p:[3.8,9.4,-9.45],    n:[ 0,0,1], label:'Orientation roof — AC unit'},
-  {set:'BLUE', num:9,  lv:'TOP', p:[-2.1,9.7,-13.45],  n:[ 0,0,1], label:'Orientation roof — generator, facing the wing'},
-  {set:'BLUE', num:10, lv:'TOP', p:[8.65,10,18.7],     n:[ 1,0,0], label:'Destroyed Wing — east hull wall, upper level (outside)'},
-  {set:'BLUE', num:11, lv:'TOP', p:[-9.5,9.9,24.45],   n:[0,0,-1], label:'Destroyed Wing — top deck, blue hull chunk'},
-  {set:'BLUE', num:12, lv:'TOP', p:[-16.9,9.8,23.95],  n:[-.35,0,-1], label:'Destroyed Wing — top deck, acid wing chunk'},
-  // --- GREEN set (8) — plaza, wing perimeter, B1 ---
-  {set:'GREEN', num:1,  lv:'L1',  p:[-32.65,1.8,-8],    n:[-1,0,0], label:'Orientation — west wall, outside'},
-  {set:'GREEN', num:2,  lv:'B1',  p:[-28.3,-2.5,-0.35], n:[ 0,0,1], label:'B1 plaza rooms — inside the wall vent'},
-  {set:'GREEN', num:3,  lv:'B1',  p:[-21.5,-2.5,8.0],   n:[0,0,-1], label:'B1 plaza rooms — center pillar'},
-  {set:'GREEN', num:4,  lv:'L1',  p:[-13.1,1.5,7.35],   n:[0,0,-1], label:'south plaza — NuCaloric kiosk'},
-  {set:'GREEN', num:5,  lv:'L1',  p:[5.3,1.6,11.35],    n:[0,0,-1], label:'Destroyed Wing — north wall by the east corner'},
-  {set:'GREEN', num:6,  lv:'L1',  p:[8.7,1.3,26.9],     n:[-1,0,0], label:'southeast yard — blue crate, west face'},
-  {set:'GREEN', num:7,  lv:'TOP', p:[-28.65,10,28.9],   n:[-1,0,0], label:'Destroyed Wing — west hull wall, upper level (outside)'},
-  {set:'GREEN', num:8,  lv:'L1',  p:[-14.4,3.0,31.9],   n:[ 0,0,1], label:'Destroyed Wing — underside of the south walkway span'},
-  // --- RED set (11) — sealed hut, depot, far east ---
-  {set:'RED', num:1,  lv:'L1',  p:[60.65,1.2,11.4],   n:[ 1,0,0], label:'far east — crate by the dorm block'},
-  {set:'RED', num:2,  lv:'L1',  p:[58.35,2.6,8.9],    n:[ 1,0,0], label:'far east — dorm block east wall, high'},
-  {set:'RED', num:3,  lv:'L1',  p:[71.65,2.2,7.2],    n:[-1,0,0], label:'east gate wall — west face'},
-  {set:'RED', num:4,  lv:'L1',  p:[59.2,2.0,-6.35],   n:[0,0,-1], label:'far east — north block, sea side'},
-  {set:'RED', num:5,  lv:'L1',  p:[35.2,2.0,1.35],    n:[0,0,-1], label:'depot — north wall, outside'},
-  {set:'RED', num:6,  lv:'L1',  p:[38.65,2.0,7.8],    n:[ 1,0,0], label:'depot — east wall, outside'},
-  {set:'RED', num:7,  lv:'L1',  p:[27.7,1.7,16.35],   n:[0,0,-1], label:'depot GF — medical section, south wall'},
-  {set:'RED', num:8,  lv:'L1',  p:[21.7,1.1,12.2],    n:[ 1,0,0], label:'depot GF — under the interior staircase'},
-  {set:'RED', num:9,  lv:'L1',  p:[17.35,1.7,9.6],    n:[-1,0,0], label:'depot — outside the west door'},
-  {set:'RED', num:10, lv:'L1',  p:[12.65,1.6,-9.2],   n:[-1,0,0], label:'sealed hut NE of Orientation — west face'},
-  {set:'RED', num:11, lv:'L1',  p:[11.45,1.6,25.2],   n:[ 1,0,0], label:'southeast yard — red container, east face'},
+  // --- PURPLE set (8) — the west quarters column ---
+  {set:'PURPLE', num:1, lv:'B1',  p:[-33.5,-1.9,7],      n:[ 1,0,0], label:'B1 west room — west wall'},                    // [guide]
+  {set:'PURPLE', num:2, lv:'B1',  p:[-30,-1.9,3.71],     n:[ 0,0,1], label:'B1 west room — north wall'},                   // [guide]
+  {set:'PURPLE', num:3, lv:'L1',  p:[-31.7,2.2,3.71],    n:[ 0,0,1], label:'west quarters — inside, north wall'},          // [model]
+  {set:'PURPLE', num:4, lv:'L1',  p:[-26.53,1.9,9.2],    n:[-1,0,0], label:'west quarters — inside, east wall'},           // [model]
+  {set:'PURPLE', num:5, lv:'2F',  p:[-27.19,4.9,-6.9],   n:[-1,0,0], label:'walkway booth — west face'},                   // [model]
+  {set:'PURPLE', num:6, lv:'2F',  p:[-24.81,4.9,-5.8],   n:[ 1,0,0], label:'walkway booth — east face'},                   // [model]
+  {set:'PURPLE', num:7, lv:'TOP', p:[-23.85,9.6,3],      n:[-1,0,0], label:'roof deck — debris chunk, west face'},         // [model]
+  {set:'PURPLE', num:8, lv:'TOP', p:[-25,9.7,8.85],      n:[ 0,0,1], label:'roof deck — debris chunk at the SW corner'},   // [model]
+  // --- GREEN set (8) — plaza + vantage ---
+  {set:'GREEN', num:1, lv:'2F',  p:[-21.38,4.81,-19.19], n:[-.866,0,-.5], label:'walkway sign panel — back face'},         // [model]
+  {set:'GREEN', num:2, lv:'B1',  p:[-28.5,-1.9,19.71],   n:[ 0,0,1], label:'B1 plaza rooms — inside the wall vent'},       // [guide]
+  {set:'GREEN', num:3, lv:'B1',  p:[-25,-1.9,22.05],     n:[0,0,-1], label:'B1 plaza rooms — center pillar'},              // [guide]
+  {set:'GREEN', num:4, lv:'L1',  p:[-12.2,1.7,9.44],     n:[ 0,0,1], label:'covered alley — inner wall'},                  // [model]
+  {set:'GREEN', num:5, lv:'L1',  p:[-6.44,1.7,10.3],     n:[-1,0,0], label:'covered alley — east wall'},                   // [model]
+  {set:'GREEN', num:6, lv:'2F',  p:[-22.6,5.5,9.55],     n:[ 0,0,1], label:'hall south face — over the porch'},           // [model]
+  {set:'GREEN', num:7, lv:'TOP', p:[-15,9.7,2.15],       n:[0,0,-1], label:'roof deck — debris chunk, north face'},        // [model]
+  {set:'GREEN', num:8, lv:'TOP', p:[-15.45,12.8,30.3],   n:[-1,0,0], label:'wing tip — west wall, outside'},               // [model]
+  // --- BLUE set (12) — the middle: ladders, roofs, the tip ---
+  {set:'BLUE', num:1,  lv:'2F',  p:[-5.35,5.3,1.7],      n:[-1,0,0], label:'hall — east block, deck story'},               // [model]
+  {set:'BLUE', num:2,  lv:'2F',  p:[-5.35,8.1,3.4],      n:[-1,0,0], label:'hall — east block, upper story'},              // [model]
+  {set:'BLUE', num:3,  lv:'2F',  p:[-4.44,7.5,-1.3],     n:[-1,0,0], label:'ladder-column fin — west face'},               // [model]
+  {set:'BLUE', num:4,  lv:'2F',  p:[-3.56,7.9,-2.1],     n:[ 1,0,0], label:'ladder-column fin — east face'},               // [model]
+  {set:'BLUE', num:5,  lv:'2F',  p:[-18.4,6.7,8.47],     n:[0,0,-1], label:'hall upper story — south wall, inside'},       // [model]
+  {set:'BLUE', num:6,  lv:'TOP', p:[-9,9.6,2.15],        n:[0,0,-1], label:'roof deck — debris chunk by the ladder top'},  // [model]
+  {set:'BLUE', num:7,  lv:'TOP', p:[5.9,9.6,2.9],        n:[ 1,0,0], label:'wing roof — debris chunk, east face'},         // [model]
+  {set:'BLUE', num:8,  lv:'TOP', p:[-11,10.4,20.45],     n:[ 0,0,1], label:'under the tip platform — south face'},         // [model]
+  {set:'BLUE', num:9,  lv:'TOP', p:[-10.6,10.5,19.55],   n:[0,0,-1], label:'under the tip platform — north face'},         // [model]
+  {set:'BLUE', num:10, lv:'TOP', p:[-14,14.7,22.55],     n:[0,0,-1], label:'wing tip — north wall, high west'},            // [model]
+  {set:'BLUE', num:11, lv:'TOP', p:[-9,13.3,22.55],      n:[0,0,-1], label:'wing tip — north wall, east'},                 // [model]
+  {set:'BLUE', num:12, lv:'TOP', p:[-6.55,13.9,27.7],    n:[ 1,0,0], label:'wing tip — east wall, outside'},               // [model]
+  // --- RED set (12) — interiors + the east annex ---
+  {set:'RED', num:1,  lv:'2F',  p:[-22.35,5.6,7],        n:[-1,0,0], label:'hall store room — west wall'},                 // [model]
+  {set:'RED', num:2,  lv:'2F',  p:[-9.3,5,9.55],         n:[ 0,0,1], label:'south face — medical wall, deck story'},       // [model]
+  {set:'RED', num:3,  lv:'2F',  p:[-9.4,6.8,9.55],       n:[ 0,0,1], label:'south face — medical wall, upper story'},      // [model]
+  {set:'RED', num:4,  lv:'2F',  p:[13.65,5,-3.7],        n:[-1,0,0], label:'sealed hut — upper story, west face'},         // [model]
+  {set:'RED', num:5,  lv:'2F',  p:[16.32,4.93,-12.68],   n:[.707,0,.707], label:'crashed hull fin — southeast face'},      // [model]
+  {set:'RED', num:6,  lv:'L1',  p:[28,2,1.65],           n:[0,0,-1], label:'depot — north wall, outside'},                 // [guide]
+  {set:'RED', num:7,  lv:'L1',  p:[26.5,2.6,13.15],      n:[0,0,-1], label:'depot — medical section, south wall'},         // [guide]
+  {set:'RED', num:8,  lv:'L1',  p:[23.98,1.1,9],         n:[ 1,0,0], label:'depot — under the loft stairs'},               // [guide]
+  {set:'RED', num:9,  lv:'L1',  p:[19.65,1.7,12.6],      n:[-1,0,0], label:'depot — outside the west door'},               // [guide]
+  {set:'RED', num:10, lv:'L1',  p:[32.25,1.2,-2.2],      n:[ 1,0,0], label:'far east — crate by the dorm block'},          // [guide]
+  {set:'RED', num:11, lv:'L1',  p:[34.35,3.6,-6.5],      n:[ 1,0,0], label:'far east — dorm block east wall, high'},       // [guide]
+  {set:'RED', num:12, lv:'L1',  p:[34.35,2.2,-0.5],      n:[-1,0,0], label:'east gate wall — west face'},                  // [guide]
 ];
 
 let switches = [];
