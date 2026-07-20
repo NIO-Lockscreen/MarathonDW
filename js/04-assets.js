@@ -27,14 +27,14 @@ loadGLB('truck', obj=>{
 // high enough to clear the Destroyed Wing wreck.
 const drones=[];
 loadGLB('drone', obj=>{
-  for(let i=0;i<3;i++){
+  for(let i=0;i<2;i++){                       // 2 drones (fewer point lights)
     const d = obj.clone(true);
     d.scale.setScalar(2.2);
-    const light = new THREE.PointLight(0xff4030, .9, 12);
+    const light = new THREE.PointLight(0xff4030, .8, 10);
     light.position.y = -0.5;
     d.add(light);
     scene.add(d);
-    drones.push({o:d, a:i*2.1, r:26+i*8, h:17+i*2.5, s:.14+i*.03, l:light});
+    drones.push({o:d, a:i*2.6, r:28+i*10, h:18+i*3, s:.14+i*.03, l:light});
   }
 });
 

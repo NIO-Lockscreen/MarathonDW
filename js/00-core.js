@@ -1,11 +1,11 @@
 'use strict';
 // ---------- Renderer / scene ----------
 const canvas = document.getElementById('c');
-const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true, powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));   // cap: 2x is 4x the pixels
 renderer.setSize(innerWidth,innerHeight);
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.type = THREE.PCFShadowMap;             // cheaper than PCFSoft
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.05;
@@ -45,12 +45,12 @@ addEventListener('resize',()=>{
 
 // ---------- Lights (cold moonlight + station floods fill in per-area) ----------
 scene.add(new THREE.HemisphereLight(0x33455e, 0x0b0d12, .75));
-const sun = new THREE.DirectionalLight(0xaac4ee, 1.0);
-sun.position.set(-60, 85, -50);
+const sun = new THREE.DirectionalLight(0xaac4ee, 1.05);
+sun.position.set(-40, 80, -30);
 sun.castShadow = true;
-sun.shadow.mapSize.set(2048,2048);
-sun.shadow.camera.left=-115; sun.shadow.camera.right=115;
-sun.shadow.camera.top=130;  sun.shadow.camera.bottom=-95;
-sun.shadow.camera.far=400;
-sun.shadow.bias = -0.0004;
+sun.shadow.mapSize.set(1024,1024);                        // 2048 was a full extra scene render at 4x cost
+sun.shadow.camera.left=-70; sun.shadow.camera.right=45;   // tightened to the arena footprint
+sun.shadow.camera.top=45;   sun.shadow.camera.bottom=-40;
+sun.shadow.camera.near=20;  sun.shadow.camera.far=200;
+sun.shadow.bias = -0.0005;
 scene.add(sun);

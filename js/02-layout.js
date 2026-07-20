@@ -164,26 +164,28 @@ function addSlab(cx,cy,cz,w,d,yaw,mat){
   platforms.push({x:cx,z:cz,w,d,yaw:yaw||0,top:cy});
   const holed = holeList.some(h=>Math.abs(h.y-cy)<0.7 && inRot(h.x,h.z,{x:cx,z:cz,w,d,yaw:yaw||0}));
   const th=0.3;
-  if(!holed){ addBox(w,th,d, cx,cy-th/2,cz, mat, {ry:yaw?yaw*Math.PI/180:0, noCollide:true}); return; }
+  // floors receive shadows but never need to cast them (noShadow) — big cut to
+  // the shadow pass. Clear slabs are one box; holed slabs tessellate at 4m.
+  if(!holed){ addBox(w,th,d, cx,cy-th/2,cz, mat, {ry:yaw?yaw*Math.PI/180:0, noCollide:true, noShadow:true}); return; }
   const rr=yaw?yaw*Math.PI/180:0, c=Math.cos(rr), s=Math.sin(rr);
   const tile=3, nx=Math.ceil(w/tile), nz=Math.ceil(d/tile), tw=w/nx, td=d/nz;
   for(let ix=0;ix<nx;ix++)for(let iz=0;iz<nz;iz++){
     const lx=-w/2+tw*(ix+0.5), lz=-d/2+td*(iz+0.5);
     const wx=cx+lx*Math.cos(rr)+lz*Math.sin(rr), wz=cz-lx*Math.sin(rr)+lz*Math.cos(rr);
     if(inHole(wx,wz,cy)) continue;
-    addBox(tw,th,td, wx,cy-th/2,wz, mat, {ry:rr, noCollide:true});
+    addBox(tw,th,td, wx,cy-th/2,wz, mat, {ry:rr, noCollide:true, noShadow:true});
   }
 }
 // climbable ladder (rails+rungs, non-colliding) + climb volume; land = the
 // solid step-off point beside the shaft hole it emerges from.
 function addLadder(cx,cz,base,top,land,axis='x'){
-  const h=top-base, cy=(base+top)/2;
-  if(axis==='x'){ addBox(.12,h,.12,cx-.55,cy,cz,M.uescDark,{noCollide:true}); addBox(.12,h,.12,cx+.55,cy,cz,M.uescDark,{noCollide:true}); }
-  else{ addBox(.12,h,.12,cx,cy,cz-.55,M.uescDark,{noCollide:true}); addBox(.12,h,.12,cx,cy,cz+.55,M.uescDark,{noCollide:true}); }
+  const h=top-base, cy=(base+top)/2, O={noCollide:true, noShadow:true};
+  if(axis==='x'){ addBox(.12,h,.12,cx-.55,cy,cz,M.uescDark,O); addBox(.12,h,.12,cx+.55,cy,cz,M.uescDark,O); }
+  else{ addBox(.12,h,.12,cx,cy,cz-.55,M.uescDark,O); addBox(.12,h,.12,cx,cy,cz+.55,M.uescDark,O); }
   const n=Math.floor(h/0.45);
   for(let i=0;i<=n;i++){
-    if(axis==='x') addBox(1.2,.09,.09,cx,base+i*0.45,cz,M.uescDark,{noCollide:true});
-    else           addBox(.09,.09,1.2,cx,base+i*0.45,cz,M.uescDark,{noCollide:true});
+    if(axis==='x') addBox(1.2,.09,.09,cx,base+i*0.45,cz,M.uescDark,O);
+    else           addBox(.09,.09,1.2,cx,base+i*0.45,cz,M.uescDark,O);
   }
   ladders.push({x0:cx-.9,x1:cx+.9,z0:cz-1.1,z1:cz+1.1,base,top:top+.1,land});
 }
@@ -274,19 +276,21 @@ MAP.blocks.forEach(bl=>{
 
 // (The tip-room door is cut by the FILL doorway added to MAP.doors above.)
 
-// Basic interior props for the hollow buildings (a crate + a light), skipping
-// the tight corridors so nothing blocks a doorway.
+// Basic interior props for the hollow buildings (a crate), skipping the tight
+// corridors. Lighting is handled by a few shared floods below — per-building
+// point lights are far too many for a forward renderer.
 MAP.buildings.filter(b=>b.hollow && Math.min(b.s[0],b.s[2])>=3.5).forEach(b=>{
   const y=floorY(b.f);
   addBox(1.1,1,1.1, b.p[0]+b.s[0]*0.2, y+0.5, b.p[2]-b.s[2]*0.2, M.genBlack);
-  addFlood(b.p[0], y+2.6, b.p[2], .5, Math.max(b.s[0],b.s[2])+4);
 });
 
-// Acid rooflines + a couple of station floods over the yards
+// Acid rooflines + a SMALL set of wide station floods (keep the point-light
+// count low — the hemisphere + moonlight do most of the work)
 addBox(46,.16,.16, -14,floorY(1)+3.05,12.3, M.acid, {noCollide:true,noShadow:true});
 addBox(.16,.16,20, -37.1,floorY(1)+3.05,2, M.acid, {noCollide:true,noShadow:true});
-addFlood(-14,7,2, .5, 26); addFlood(4,7,4, .5, 22); addFlood(12,6,-8, .5, 24);
-addFlood(-48,6,0, .5, 26);
+addFlood(-14,8,3, .7, 40);     // over the hall / central deck
+addFlood(4,8,2, .6, 34);       // over the hull corridor / east
+addFlood(-48,7,0, .6, 34);     // over the west hangar
 
 // Red beacon + acid trim up on the wing tip (skyline)
 addBox(.9,.16,.16, -11,floorY(4)+2.4,27, M.redGlow, {noCollide:true,noShadow:true});
@@ -315,8 +319,7 @@ function buildBarrierLamps(n){
   }
 }
 
-// South plaza dressing on the ground (the deploy area) — kiosks flank the
-// approach lane so the spawn stays clear straight ahead
+// South plaza dressing on the ground (kiosk pair; no extra light)
 {
   addPad(26,12, -6,22);
   [[-14,20,0],[4,20,1]].forEach(([x,z,i])=>{
@@ -324,5 +327,4 @@ function buildBarrierLamps(n){
     const sgn=new THREE.Mesh(new THREE.PlaneGeometry(1.3,2.1), new THREE.MeshBasicMaterial({color:i?0x66ccff:0xffaa33}));
     sgn.position.set(x,1.55,z-0.62); sgn.rotation.y=Math.PI; scene.add(sgn);
   });
-  addFlood(-6,3.6,21, .6, 15);
 }

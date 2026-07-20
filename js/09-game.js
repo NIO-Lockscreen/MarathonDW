@@ -56,9 +56,11 @@ function startRun(mode){
   document.getElementById('guidemark').style.display='none';
   barrier.visible=true; barrier2.visible=true;
 
-  // deploy on the ground south of the complex (the open plaza) — two spots
-  const D = [{x:-8,z:25,yaw:0}, {x:2,z:25,yaw:0}][(Math.random()*2)|0];
-  player.pos.set(D.x,0,D.z); player.vel.set(0,0,0);
+  // deploy INSIDE the hall (the open two-story atrium at the centre of the
+  // complex) on the deck floor, facing south down the room — verified clear,
+  // 7m of open space ahead, surrounded by the structure
+  const D = [{x:-16,y:3,z:4,yaw:Math.PI}, {x:-14,y:3,z:5,yaw:Math.PI}][(Math.random()*2)|0];
+  player.pos.set(D.x,D.y,D.z); player.vel.set(0,0,0);
   player.yaw=D.yaw; player.pitch=0;
   particles.forEach(p=>scene.remove(p)); particles=[];
   flash((currentSetName? currentSetName+' SET — ' : M.name+' — ')+'FIND '+targetCount+' BUTTONS');
