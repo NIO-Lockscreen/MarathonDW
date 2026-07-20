@@ -53,10 +53,15 @@ function updateGuide(){
 
 function groundHeightAt(x,z,curY){
   let h = 0;
-  for(const p of PITS){                       // B1 basement rooms sit below grade
+  for(const p of PITS){                       // (B1 rooms — unused in this build)
     if(x>p.x0 && x<p.x1 && z>p.z0 && z<p.z1){ h=p.floor; break; }
   }
-  for(const bb of colliders){
+  // walkable slabs (decks, roofs, tip) — rotated-rect support minus shaft holes
+  for(const p of platforms){
+    if(p.top<=curY+STEP && p.top>h &&
+       inRot(x,z,{x:p.x,z:p.z,w:p.w,d:p.d,yaw:p.yaw}) && !inHole(x,z,p.top)) h=p.top;
+  }
+  for(const bb of colliders){                 // crate / prop tops you can stand on
     if(x>bb.min.x-player.r && x<bb.max.x+player.r && z>bb.min.z-player.r && z<bb.max.z+player.r){
       if(bb.max.y<=curY+STEP && bb.max.y>h) h=bb.max.y;
     }

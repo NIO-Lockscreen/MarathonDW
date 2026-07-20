@@ -7,7 +7,7 @@ const MODES = {
   1:{ key:'1', name:'GUIDED',   count:5,  arrow:true,  mapActive:false, blurb:'Marker floats on the nearest button' },
   2:{ key:'2', name:'RECON',    count:5,  arrow:false, mapActive:true,  blurb:'Live buttons ringed on the TAB map' },
   3:{ key:'3', name:'BLIND',    count:5,  arrow:false, mapActive:false, blurb:'No help — learn the spawns' },
-  4:{ key:'4', name:'FULL SET', set:true, arrow:false, mapActive:true,  blurb:'One whole color set (8-12 buttons)' },
+  4:{ key:'4', name:'FULL SET', set:true, arrow:false, mapActive:true,  blurb:'One whole color set (6-9 buttons)' },
 };
 let assistMode = 3;
 let targetCount = 5;
@@ -56,9 +56,8 @@ function startRun(mode){
   document.getElementById('guidemark').style.display='none';
   barrier.visible=true; barrier2.visible=true;
 
-  // deploy on one of the drop zones flanking the complex — NW ground by the
-  // walkway stairs, or the south plaza (the guide's two spawn sides)
-  const D = [{x:-30,z:-14,yaw:-2.35}, {x:-4,z:24,yaw:.3}][(Math.random()*2)|0];
+  // deploy on the ground south of the complex (the open plaza) — two spots
+  const D = [{x:-8,z:25,yaw:0}, {x:2,z:25,yaw:0}][(Math.random()*2)|0];
   player.pos.set(D.x,0,D.z); player.vel.set(0,0,0);
   player.yaw=D.yaw; player.pitch=0;
   particles.forEach(p=>scene.remove(p)); particles=[];
